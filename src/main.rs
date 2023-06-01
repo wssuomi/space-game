@@ -5,6 +5,7 @@ pub const PLAYER_SPEED: f32 = 480.0;
 
 fn main() {
     App::new()
+        .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.2)))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "Space game".into(),
