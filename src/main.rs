@@ -2,6 +2,7 @@ use bevy::{prelude::*, window::PrimaryWindow};
 // use rand::prelude::*;
 
 pub const PLAYER_SPEED: f32 = 480.0;
+pub const PLAYER_SIZE: f32 = 100.0;
 
 fn main() {
     App::new()
@@ -51,6 +52,7 @@ pub fn spawn_player(
 pub fn player_movement(
     keyboard_input: Res<Input<KeyCode>>,
     mut player_query: Query<&mut Transform, With<Player>>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
     time: Res<Time>,
 ) {
     if let Ok(mut transform) = player_query.get_single_mut() {
@@ -73,6 +75,29 @@ pub fn player_movement(
             direction = direction.normalize();
         }
 
-        transform.translation += direction * PLAYER_SPEED * time.delta_seconds();
+        let window = window_query.get_single().unwrap();
+
+        let half_player_size: f32 = PLAYER_SIZE / 2.0;
+        let x_min: f32 = 0.0 + half_player_size;
+        let x_max: f32 = window.width() - half_player_size;
+        let y_min: f32 = 0.0 + half_player_size;
+        let y_max: f32 = window.height() - half_player_size;
+
+        let mut new_translation =
+            transform.translation + direction * PLAYER_SPEED * time.delta_seconds();
+
+        if new_translation.x < x_min {
+            new_translation.x = x_min;
+        } else if new_translation.x > x_max {
+            new_translation.x = x_max;
+        }
+
+        if new_translation.y < y_min {
+            new_translation.y = y_min;
+        } else if new_translation.y > y_max {
+            new_translation.y = y_max;
+        }
+
+        transform.translation = new_translation;
     }
 }
