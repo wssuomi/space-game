@@ -4,6 +4,9 @@ use rand::prelude::*;
 pub const PLAYER_SPEED: f32 = 480.0;
 pub const PLAYER_SIZE: f32 = 100.0;
 pub const ROCK_COOLDOWN: f32 = 2.0;
+pub const FAST_ROCK_SPEED: f32 = 100.0;
+pub const NORMAL_ROCK_SPEED: f32 = 75.0;
+pub const SLOW_ROCK_SPEED: f32 = 50.0;
 
 fn main() {
     App::new()
@@ -24,6 +27,7 @@ fn main() {
         .add_system(spawn_rocks_over_time)
         .add_system(tick_rock_spawn_timer)
         .add_system(player_movement)
+        .add_system(move_rocks)
         .run();
 }
 
@@ -49,9 +53,16 @@ enum RockSize {
     Small,
 }
 
+enum RockSpeed {
+    Fast,
+    Normal,
+    Slow,
+}
+
 #[derive(Component)]
 pub struct Rock {
     size: RockSize,
+    speed: RockSpeed,
 }
 
 pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
@@ -150,13 +161,22 @@ pub fn spawn_rocks_over_time(
             _ => (RockSize::Big, "sprites/big_rock.png"),
         };
 
+        let rock_speed: RockSpeed = match rng.gen_range(0..3) {
+            0 => RockSpeed::Fast,
+            1 => RockSpeed::Normal,
+            _ => RockSpeed::Slow,
+        };
+
         commands.spawn((
             SpriteBundle {
                 transform: Transform::from_xyz(random_x, random_y, 0.0),
                 texture: asset_server.load(rock_sprite),
                 ..default()
             },
-            Rock { size: rock_size },
+            Rock {
+                size: rock_size,
+                speed: rock_speed,
+            },
         ));
     }
 }
@@ -166,3 +186,14 @@ pub fn tick_rock_spawn_timer(mut rock_spawn_timer: ResMut<RockSpawnTimer>, time:
 }
 
 pub fn player_rock_collision() {}
+
+pub fn move_rocks(mut rock_query: Query<(&mut Transform, &Rock)>, time: Res<Time>) {
+    for (mut transform, rock) in rock_query.iter_mut() {
+        let rock_speed = match rock.speed {
+            RockSpeed::Fast => FAST_ROCK_SPEED,
+            RockSpeed::Normal => NORMAL_ROCK_SPEED,
+            RockSpeed::Slow => SLOW_ROCK_SPEED,
+        };
+        transform.translation.y -= rock_speed * time.delta_seconds();
+    }
+}
