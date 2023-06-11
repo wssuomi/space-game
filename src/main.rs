@@ -7,6 +7,9 @@ pub const ROCK_COOLDOWN: f32 = 2.0;
 pub const FAST_ROCK_SPEED: f32 = 100.0;
 pub const NORMAL_ROCK_SPEED: f32 = 75.0;
 pub const SLOW_ROCK_SPEED: f32 = 50.0;
+pub const BIG_ROCK_SIZE: f32 = 150.0;
+pub const NORMAL_ROCK_SIZE: f32 = 100.0;
+pub const SMALL_ROCK_SIZE: f32 = 70.0;
 
 fn main() {
     App::new()
@@ -28,6 +31,7 @@ fn main() {
         .add_system(tick_rock_spawn_timer)
         .add_system(player_movement)
         .add_system(move_rocks)
+        .add_system(remove_rocks)
         .run();
 }
 
@@ -195,5 +199,21 @@ pub fn move_rocks(mut rock_query: Query<(&mut Transform, &Rock)>, time: Res<Time
             RockSpeed::Slow => SLOW_ROCK_SPEED,
         };
         transform.translation.y -= rock_speed * time.delta_seconds();
+    }
+}
+
+pub fn remove_rocks(
+    mut commands: Commands,
+    rock_query: Query<(Entity, &Transform, &Rock), With<Rock>>,
+) {
+    for (rock_entity, rock_transform, rock) in rock_query.iter() {
+        let rock_size = match rock.size {
+            RockSize::Big => BIG_ROCK_SIZE,
+            RockSize::Normal => NORMAL_ROCK_SIZE,
+            RockSize::Small => SMALL_ROCK_SIZE,
+        };
+        if rock_transform.translation.y < 0.0 - rock_size {
+            commands.entity(rock_entity).despawn();
+        }
     }
 }
