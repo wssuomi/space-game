@@ -13,12 +13,6 @@ fn main() {
             primary_window: Some(Window {
                 title: "Space game".into(),
                 resolution: (900.0, 900.0).into(),
-                resize_constraints: WindowResizeConstraints {
-                    max_width: 900.0,
-                    max_height: 900.0,
-                    min_width: 900.0,
-                    min_height: 900.0,
-                },
                 resizable: false,
 
                 ..default()
