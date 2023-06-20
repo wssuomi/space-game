@@ -15,6 +15,7 @@ fn main() {
     App::new()
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.2)))
         .init_resource::<RockSpawnTimer>()
+        .init_resource::<Score>()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "Space game".into(),
@@ -68,6 +69,17 @@ enum RockSpeed {
 pub struct Rock {
     size: RockSize,
     speed: RockSpeed,
+}
+
+#[derive(Resource)]
+pub struct Score {
+    pub value: u32,
+}
+
+impl Default for Score {
+    fn default() -> Score {
+        Score { value: 0 }
+    }
 }
 
 pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
@@ -194,6 +206,7 @@ pub fn player_rock_collision(
     mut commands: Commands,
     player_query: Query<&Transform, With<Player>>,
     rock_query: Query<(Entity, &Transform, &Rock), With<Rock>>,
+    mut score: ResMut<Score>,
     asset_server: Res<AssetServer>,
     audio: Res<Audio>,
 ) {
@@ -208,6 +221,8 @@ pub fn player_rock_collision(
                 .translation
                 .distance(rock_transform.translation);
             if distance < PLAYER_SIZE / 2.0 + rock_size / 2.0 {
+                score.value += 25;
+                println!("Score: {}", score.value);
                 let sound_effect = asset_server.load("audio/rock_hit.ogg");
                 audio.play(sound_effect);
                 commands.entity(rock_entity).despawn();
