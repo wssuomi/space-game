@@ -29,6 +29,7 @@ fn main() {
         .add_startup_system(spawn_player)
         .add_system(spawn_rocks_over_time)
         .add_system(tick_rock_spawn_timer)
+        .add_system(player_rock_collision)
         .add_system(player_movement)
         .add_system(move_rocks)
         .add_system(remove_rocks)
@@ -189,7 +190,32 @@ pub fn tick_rock_spawn_timer(mut rock_spawn_timer: ResMut<RockSpawnTimer>, time:
     rock_spawn_timer.timer.tick(time.delta());
 }
 
-pub fn player_rock_collision() {}
+pub fn player_rock_collision(
+    mut commands: Commands,
+    player_query: Query<&Transform, With<Player>>,
+    rock_query: Query<(Entity, &Transform, &Rock), With<Rock>>,
+    asset_server: Res<AssetServer>,
+    audio: Res<Audio>,
+) {
+    if let Ok(player_transform) = player_query.get_single() {
+        for (rock_entity, rock_transform, rock) in rock_query.iter() {
+            let rock_size = match rock.size {
+                RockSize::Big => BIG_ROCK_SIZE,
+                RockSize::Normal => NORMAL_ROCK_SIZE,
+                RockSize::Small => SMALL_ROCK_SIZE,
+            };
+            let distance = player_transform
+                .translation
+                .distance(rock_transform.translation);
+            if distance < PLAYER_SIZE / 2.0 + rock_size / 2.0 {
+                println!("Player hit rock!");
+                let sound_effect = asset_server.load("audio/rock_hit.ogg");
+                audio.play(sound_effect);
+                commands.entity(rock_entity).despawn();
+            }
+        }
+    }
+}
 
 pub fn move_rocks(mut rock_query: Query<(&mut Transform, &Rock)>, time: Res<Time>) {
     for (mut transform, rock) in rock_query.iter_mut() {
