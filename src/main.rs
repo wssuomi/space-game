@@ -173,7 +173,7 @@ pub fn spawn_rocks_over_time(
 
         commands.spawn((
             SpriteBundle {
-                transform: Transform::from_xyz(random_x, random_y, 0.0),
+                transform: Transform::from_xyz(random_x, random_y + window.height(), 0.0),
                 texture: asset_server.load(rock_sprite),
                 ..default()
             },
