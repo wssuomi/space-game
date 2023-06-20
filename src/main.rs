@@ -4,6 +4,7 @@ use rand::prelude::*;
 pub const PLAYER_SPEED: f32 = 480.0;
 pub const PLAYER_SIZE: f32 = 100.0;
 pub const ROCK_COOLDOWN: f32 = 2.0;
+pub const SCORE_COOLDOWN: f32 = 1.0;
 pub const FAST_ROCK_SPEED: f32 = 100.0;
 pub const NORMAL_ROCK_SPEED: f32 = 75.0;
 pub const SLOW_ROCK_SPEED: f32 = 50.0;
@@ -16,6 +17,7 @@ fn main() {
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.2)))
         .init_resource::<RockSpawnTimer>()
         .init_resource::<Score>()
+        .init_resource::<ScoreTimer>()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "Space game".into(),
@@ -34,7 +36,33 @@ fn main() {
         .add_system(player_movement)
         .add_system(move_rocks)
         .add_system(remove_rocks)
+        .add_system(tick_score_timer)
+        .add_system(add_score_over_timer)
         .run();
+}
+
+#[derive(Resource)]
+pub struct Score {
+    pub value: u32,
+}
+
+impl Default for Score {
+    fn default() -> Score {
+        Score { value: 0 }
+    }
+}
+
+#[derive(Resource)]
+pub struct ScoreTimer {
+    pub timer: Timer,
+}
+
+impl Default for ScoreTimer {
+    fn default() -> Self {
+        ScoreTimer {
+            timer: Timer::from_seconds(SCORE_COOLDOWN, TimerMode::Repeating),
+        }
+    }
 }
 
 #[derive(Resource)]
@@ -69,17 +97,6 @@ enum RockSpeed {
 pub struct Rock {
     size: RockSize,
     speed: RockSpeed,
-}
-
-#[derive(Resource)]
-pub struct Score {
-    pub value: u32,
-}
-
-impl Default for Score {
-    fn default() -> Score {
-        Score { value: 0 }
-    }
 }
 
 pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
@@ -198,8 +215,19 @@ pub fn spawn_rocks_over_time(
     }
 }
 
+pub fn add_score_over_timer(mut score: ResMut<Score>, score_timer: Res<ScoreTimer>) {
+    if score_timer.timer.finished() {
+        score.value += 5;
+        println!("Score: {}", score.value);
+    }
+}
+
 pub fn tick_rock_spawn_timer(mut rock_spawn_timer: ResMut<RockSpawnTimer>, time: Res<Time>) {
     rock_spawn_timer.timer.tick(time.delta());
+}
+
+pub fn tick_score_timer(mut score_timer: ResMut<ScoreTimer>, time: Res<Time>) {
+    score_timer.timer.tick(time.delta());
 }
 
 pub fn player_rock_collision(
