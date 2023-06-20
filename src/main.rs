@@ -11,6 +11,8 @@ pub const SLOW_ROCK_SPEED: f32 = 50.0;
 pub const BIG_ROCK_SIZE: f32 = 150.0;
 pub const NORMAL_ROCK_SIZE: f32 = 100.0;
 pub const SMALL_ROCK_SIZE: f32 = 70.0;
+pub const STAR_COUNT: u32 = 100;
+pub const STAR_SPEED: f32 = 40.0;
 
 fn main() {
     App::new()
@@ -30,6 +32,7 @@ fn main() {
         }))
         .add_startup_system(spawn_camera)
         .add_startup_system(spawn_player)
+        .add_startup_system(spawn_stars)
         .add_system(spawn_rocks_over_time)
         .add_system(tick_rock_spawn_timer)
         .add_system(player_rock_collision)
@@ -38,6 +41,8 @@ fn main() {
         .add_system(remove_rocks)
         .add_system(tick_score_timer)
         .add_system(add_score_over_timer)
+        .add_system(move_stars)
+        .add_system(send_star_to_top)
         .run();
 }
 
@@ -98,6 +103,8 @@ pub struct Rock {
     size: RockSize,
     speed: RockSpeed,
 }
+#[derive(Component)]
+pub struct Star {}
 
 pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
     let window: &Window = window_query.get_single().unwrap();
@@ -282,6 +289,46 @@ pub fn remove_rocks(
         };
         if rock_transform.translation.y < 0.0 - rock_size {
             commands.entity(rock_entity).despawn();
+        }
+    }
+}
+
+pub fn spawn_stars(
+    mut commands: Commands,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    asset_server: Res<AssetServer>,
+) {
+    let window = window_query.get_single().unwrap();
+
+    for _ in 0..STAR_COUNT {
+        let random_x = random::<f32>() * window.width();
+        let random_y = random::<f32>() * window.height();
+
+        commands.spawn((
+            SpriteBundle {
+                transform: Transform::from_xyz(random_x, random_y, -1.0),
+                texture: asset_server.load("sprites/star.png"),
+                ..default()
+            },
+            Star {},
+        ));
+    }
+}
+
+pub fn move_stars(mut star_query: Query<&mut Transform, With<Star>>, time: Res<Time>) {
+    for mut transform in star_query.iter_mut() {
+        transform.translation.y -= STAR_SPEED * time.delta_seconds();
+    }
+}
+
+pub fn send_star_to_top(
+    mut star_query: Query<&mut Transform, With<Star>>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+) {
+    let window = window_query.get_single().unwrap();
+    for mut transform in star_query.iter_mut() {
+        if transform.translation.y < -10.0 {
+            transform.translation.y = window.height() + 10.0;
         }
     }
 }
