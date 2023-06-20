@@ -208,7 +208,6 @@ pub fn player_rock_collision(
                 .translation
                 .distance(rock_transform.translation);
             if distance < PLAYER_SIZE / 2.0 + rock_size / 2.0 {
-                println!("Player hit rock!");
                 let sound_effect = asset_server.load("audio/rock_hit.ogg");
                 audio.play(sound_effect);
                 commands.entity(rock_entity).despawn();
