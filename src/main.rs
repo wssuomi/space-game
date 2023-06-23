@@ -28,9 +28,12 @@ pub const BOTTOM_WALL_Y: f32 = 0.0;
 pub const LEFT_WALL_Y: f32 = 450.0;
 pub const RIGHT_WALL_Y: f32 = 450.0;
 
+pub const VOID_BOX_SIZE: f32 = 200.0;
+pub const CLEAR_COLOR: Color = Color::rgb(0.0, 0.0, 0.2);
+
 fn main() {
     App::new()
-        .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.2)))
+        .insert_resource(ClearColor(CLEAR_COLOR))
         .init_resource::<RockSpawnTimer>()
         .init_resource::<Score>()
         .init_resource::<ScoreTimer>()
@@ -48,6 +51,7 @@ fn main() {
         .add_startup_system(spawn_player)
         .add_startup_system(spawn_stars)
         .add_startup_system(spawn_arena_walls)
+        .add_startup_system(spawn_void_boxes)
         .add_system(spawn_rocks_over_time)
         .add_system(tick_rock_spawn_timer)
         .add_system(player_rock_collision)
@@ -129,6 +133,21 @@ pub struct ArenaWallBundle {
     sprite_bundle: SpriteBundle,
 }
 
+#[derive(Component)]
+pub struct VoidBox {}
+
+#[derive(Bundle)]
+pub struct VoidBoxBundle {
+    sprite_bundle: SpriteBundle,
+}
+
+enum VoidBoxLocation {
+    Left,
+    Right,
+    Top,
+    Bottom,
+}
+
 enum ArenaWallLocation {
     Left,
     Right,
@@ -139,10 +158,10 @@ enum ArenaWallLocation {
 impl ArenaWallLocation {
     fn position(&self) -> Vec3 {
         match self {
-            ArenaWallLocation::Left => Vec3::new(LEFT_WALL_X - 5.0, LEFT_WALL_Y, 1.0),
-            ArenaWallLocation::Right => Vec3::new(RIGHT_WALL_X + 5.0, RIGHT_WALL_Y, 1.0),
-            ArenaWallLocation::Top => Vec3::new(TOP_WALL_X, TOP_WALL_Y + 5.0, 1.0),
-            ArenaWallLocation::Bottom => Vec3::new(BOTTOM_WALL_X, BOTTOM_WALL_Y - 5.0, 1.0),
+            ArenaWallLocation::Left => Vec3::new(LEFT_WALL_X - 5.0, LEFT_WALL_Y, 3.0),
+            ArenaWallLocation::Right => Vec3::new(RIGHT_WALL_X + 5.0, RIGHT_WALL_Y, 3.0),
+            ArenaWallLocation::Top => Vec3::new(TOP_WALL_X, TOP_WALL_Y + 5.0, 3.0),
+            ArenaWallLocation::Bottom => Vec3::new(BOTTOM_WALL_X, BOTTOM_WALL_Y - 5.0, 3.0),
         }
     }
 
@@ -175,6 +194,51 @@ impl ArenaWallBundle {
     }
 }
 
+impl VoidBoxLocation {
+    fn position(&self) -> Vec3 {
+        match self {
+            VoidBoxLocation::Left => Vec3::new(LEFT_WALL_X - VOID_BOX_SIZE / 2.0, LEFT_WALL_Y, 2.0),
+            VoidBoxLocation::Right => {
+                Vec3::new(RIGHT_WALL_X + VOID_BOX_SIZE / 2.0, RIGHT_WALL_Y, 2.0)
+            }
+            VoidBoxLocation::Top => Vec3::new(TOP_WALL_X, TOP_WALL_Y + VOID_BOX_SIZE / 2.0, 2.0),
+            VoidBoxLocation::Bottom => {
+                Vec3::new(BOTTOM_WALL_X, BOTTOM_WALL_Y - VOID_BOX_SIZE / 2.0, 2.0)
+            }
+        }
+    }
+
+    fn size(&self) -> Vec3 {
+        match self {
+            VoidBoxLocation::Top | VoidBoxLocation::Bottom => {
+                Vec3::new(ARENA_WIDTH, VOID_BOX_SIZE, 1.0)
+            }
+            VoidBoxLocation::Left | VoidBoxLocation::Right => {
+                Vec3::new(VOID_BOX_SIZE, ARENA_HEIGHT + 2.0 * VOID_BOX_SIZE, 1.0)
+            }
+        }
+    }
+}
+
+impl VoidBoxBundle {
+    fn new(location: VoidBoxLocation) -> VoidBoxBundle {
+        VoidBoxBundle {
+            sprite_bundle: SpriteBundle {
+                transform: Transform {
+                    translation: location.position(),
+                    scale: location.size(),
+                    ..default()
+                },
+                sprite: Sprite {
+                    color: CLEAR_COLOR,
+                    ..default()
+                },
+                ..default()
+            },
+        }
+    }
+}
+
 pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
     let window: &Window = window_query.get_single().unwrap();
     commands.spawn(Camera2dBundle {
@@ -191,6 +255,13 @@ pub fn spawn_arena_walls(mut commands: Commands) {
     ));
     commands.spawn((ArenaWallBundle::new(ArenaWallLocation::Right), ArenaWall {}));
     commands.spawn((ArenaWallBundle::new(ArenaWallLocation::Left), ArenaWall {}));
+}
+
+pub fn spawn_void_boxes(mut commands: Commands) {
+    commands.spawn((VoidBoxBundle::new(VoidBoxLocation::Top), VoidBox {}));
+    commands.spawn((VoidBoxBundle::new(VoidBoxLocation::Bottom), VoidBox {}));
+    commands.spawn((VoidBoxBundle::new(VoidBoxLocation::Right), VoidBox {}));
+    commands.spawn((VoidBoxBundle::new(VoidBoxLocation::Left), VoidBox {}));
 }
 
 pub fn spawn_player(
