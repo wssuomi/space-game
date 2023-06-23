@@ -15,6 +15,18 @@ pub const STAR_COUNT: u32 = 100;
 pub const STAR_SPEED: f32 = 40.0;
 pub const ARENA_WIDTH: f32 = 900.0;
 pub const ARENA_HEIGHT: f32 = 900.0;
+pub const WALL_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
+pub const WALL_SIZE: f32 = 10.0;
+
+pub const TOP_WALL_X: f32 = 450.0;
+pub const BOTTOM_WALL_X: f32 = 450.0;
+pub const LEFT_WALL_X: f32 = 0.0;
+pub const RIGHT_WALL_X: f32 = 900.0;
+
+pub const TOP_WALL_Y: f32 = 900.0;
+pub const BOTTOM_WALL_Y: f32 = 0.0;
+pub const LEFT_WALL_Y: f32 = 450.0;
+pub const RIGHT_WALL_Y: f32 = 450.0;
 
 fn main() {
     App::new()
@@ -35,6 +47,7 @@ fn main() {
         .add_startup_system(spawn_camera)
         .add_startup_system(spawn_player)
         .add_startup_system(spawn_stars)
+        .add_startup_system(spawn_arena_walls)
         .add_system(spawn_rocks_over_time)
         .add_system(tick_rock_spawn_timer)
         .add_system(player_rock_collision)
@@ -108,12 +121,76 @@ pub struct Rock {
 #[derive(Component)]
 pub struct Star {}
 
+#[derive(Component)]
+pub struct ArenaWall {}
+
+#[derive(Bundle)]
+pub struct ArenaWallBundle {
+    sprite_bundle: SpriteBundle,
+}
+
+enum ArenaWallLocation {
+    Left,
+    Right,
+    Top,
+    Bottom,
+}
+
+impl ArenaWallLocation {
+    fn position(&self) -> Vec3 {
+        match self {
+            ArenaWallLocation::Left => Vec3::new(LEFT_WALL_X - 5.0, LEFT_WALL_Y, 1.0),
+            ArenaWallLocation::Right => Vec3::new(RIGHT_WALL_X + 5.0, RIGHT_WALL_Y, 1.0),
+            ArenaWallLocation::Top => Vec3::new(TOP_WALL_X, TOP_WALL_Y + 5.0, 1.0),
+            ArenaWallLocation::Bottom => Vec3::new(BOTTOM_WALL_X, BOTTOM_WALL_Y - 5.0, 1.0),
+        }
+    }
+
+    fn size(&self) -> Vec3 {
+        match self {
+            ArenaWallLocation::Top | ArenaWallLocation::Bottom => Vec3::new(ARENA_WIDTH, 10.0, 1.0),
+            ArenaWallLocation::Left | ArenaWallLocation::Right => {
+                Vec3::new(10.0, ARENA_HEIGHT + 20.0, 1.0)
+            }
+        }
+    }
+}
+
+impl ArenaWallBundle {
+    fn new(location: ArenaWallLocation) -> ArenaWallBundle {
+        ArenaWallBundle {
+            sprite_bundle: SpriteBundle {
+                transform: Transform {
+                    translation: location.position(),
+                    scale: location.size(),
+                    ..default()
+                },
+                sprite: Sprite {
+                    color: WALL_COLOR,
+                    ..default()
+                },
+                ..default()
+            },
+        }
+    }
+}
+
 pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
     let window: &Window = window_query.get_single().unwrap();
     commands.spawn(Camera2dBundle {
-        transform: Transform::from_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, 0.0),
+        transform: Transform::from_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, 5.0),
         ..default()
     });
+}
+
+pub fn spawn_arena_walls(mut commands: Commands) {
+    commands.spawn((ArenaWallBundle::new(ArenaWallLocation::Top), ArenaWall {}));
+    commands.spawn((
+        ArenaWallBundle::new(ArenaWallLocation::Bottom),
+        ArenaWall {},
+    ));
+    commands.spawn((ArenaWallBundle::new(ArenaWallLocation::Right), ArenaWall {}));
+    commands.spawn((ArenaWallBundle::new(ArenaWallLocation::Left), ArenaWall {}));
 }
 
 pub fn spawn_player(
@@ -212,7 +289,7 @@ pub fn spawn_rocks_over_time(
 
         commands.spawn((
             SpriteBundle {
-                transform: Transform::from_xyz(random_x, random_y + ARENA_HEIGHT, 0.0),
+                transform: Transform::from_xyz(random_x, BIG_ROCK_SIZE + ARENA_HEIGHT, 0.0),
                 texture: asset_server.load(rock_sprite),
                 ..default()
             },
