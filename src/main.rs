@@ -102,14 +102,6 @@ pub struct ArenaWallBundle {
     sprite_bundle: SpriteBundle,
 }
 
-#[derive(Component)]
-pub struct VoidBox {}
-
-#[derive(Bundle)]
-pub struct VoidBoxBundle {
-    sprite_bundle: SpriteBundle,
-}
-
 enum ArenaWallLocation {
     Left,
     Right,
