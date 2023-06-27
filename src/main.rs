@@ -1,8 +1,8 @@
 use bevy::prelude::*;
-use rand::prelude::*;
 
 pub mod player;
 pub mod rock;
+pub mod star;
 
 pub const PLAYER_SPEED: f32 = 480.0;
 pub const PLAYER_SIZE: f32 = 100.0;
@@ -52,7 +52,7 @@ fn main() {
         }))
         .add_startup_system(spawn_camera)
         .add_startup_system(player::spawn_player)
-        .add_startup_system(spawn_stars)
+        .add_startup_system(star::spawn_stars)
         .add_startup_system(spawn_arena_walls)
         .add_system(rock::spawn_rocks_over_time)
         .add_system(rock::tick_rock_spawn_timer)
@@ -62,8 +62,8 @@ fn main() {
         .add_system(rock::remove_rocks)
         .add_system(tick_score_timer)
         .add_system(add_score_over_timer)
-        .add_system(move_stars)
-        .add_system(send_star_to_top)
+        .add_system(star::move_stars)
+        .add_system(star::send_star_to_top)
         .run();
 }
 
@@ -90,9 +90,6 @@ impl Default for ScoreTimer {
         }
     }
 }
-
-#[derive(Component)]
-pub struct Star {}
 
 #[derive(Component)]
 pub struct ArenaWall {}
@@ -219,34 +216,4 @@ pub fn add_score_over_timer(mut score: ResMut<Score>, score_timer: Res<ScoreTime
 
 pub fn tick_score_timer(mut score_timer: ResMut<ScoreTimer>, time: Res<Time>) {
     score_timer.timer.tick(time.delta());
-}
-
-pub fn spawn_stars(mut commands: Commands, asset_server: Res<AssetServer>) {
-    for _ in 0..STAR_COUNT {
-        let random_x = random::<f32>() * ARENA_WIDTH;
-        let random_y = random::<f32>() * ARENA_HEIGHT;
-
-        commands.spawn((
-            SpriteBundle {
-                transform: Transform::from_xyz(random_x, random_y, -1.0),
-                texture: asset_server.load("sprites/star.png"),
-                ..default()
-            },
-            Star {},
-        ));
-    }
-}
-
-pub fn move_stars(mut star_query: Query<&mut Transform, With<Star>>, time: Res<Time>) {
-    for mut transform in star_query.iter_mut() {
-        transform.translation.y -= STAR_SPEED * time.delta_seconds();
-    }
-}
-
-pub fn send_star_to_top(mut star_query: Query<&mut Transform, With<Star>>) {
-    for mut transform in star_query.iter_mut() {
-        if transform.translation.y < -10.0 {
-            transform.translation.y = ARENA_HEIGHT + 10.0;
-        }
-    }
 }
