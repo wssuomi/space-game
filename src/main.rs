@@ -1,4 +1,4 @@
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::prelude::*;
 use rand::prelude::*;
 
 pub const PLAYER_SPEED: f32 = 480.0;
@@ -190,8 +190,7 @@ impl ArenaWallBundle {
     }
 }
 
-pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
-    let window: &Window = window_query.get_single().unwrap();
+pub fn spawn_camera(mut commands: Commands) {
     commands.spawn(Camera2dBundle {
         transform: Transform::from_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, 5.0),
         ..default()
@@ -249,13 +248,7 @@ pub fn spawn_arena_walls(mut commands: Commands) {
     ));
 }
 
-pub fn spawn_player(
-    mut commands: Commands,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-    asset_server: Res<AssetServer>,
-) {
-    let window: &Window = window_query.get_single().unwrap();
-
+pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         SpriteBundle {
             transform: Transform::from_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, 0.0),
@@ -269,7 +262,6 @@ pub fn spawn_player(
 pub fn player_movement(
     keyboard_input: Res<Input<KeyCode>>,
     mut player_query: Query<&mut Transform, With<Player>>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
     time: Res<Time>,
 ) {
     if let Ok(mut transform) = player_query.get_single_mut() {
@@ -291,8 +283,6 @@ pub fn player_movement(
         if direction.length() > 0.0 {
             direction = direction.normalize();
         }
-
-        let window = window_query.get_single().unwrap();
 
         let half_player_size: f32 = PLAYER_SIZE / 2.0;
         let x_min: f32 = 0.0 + half_player_size;
@@ -321,14 +311,11 @@ pub fn player_movement(
 
 pub fn spawn_rocks_over_time(
     mut commands: Commands,
-    window_query: Query<&Window, With<PrimaryWindow>>,
     asset_server: Res<AssetServer>,
     rock_spawn_timer: Res<RockSpawnTimer>,
 ) {
     if rock_spawn_timer.timer.finished() {
-        let window = window_query.get_single().unwrap();
         let random_x = random::<f32>() * ARENA_WIDTH;
-        let random_y = random::<f32>() * ARENA_HEIGHT;
 
         let mut rng = thread_rng();
         let (rock_size, rock_sprite) = match rng.gen_range(0..3) {
@@ -428,13 +415,7 @@ pub fn remove_rocks(
     }
 }
 
-pub fn spawn_stars(
-    mut commands: Commands,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-    asset_server: Res<AssetServer>,
-) {
-    let window = window_query.get_single().unwrap();
-
+pub fn spawn_stars(mut commands: Commands, asset_server: Res<AssetServer>) {
     for _ in 0..STAR_COUNT {
         let random_x = random::<f32>() * ARENA_WIDTH;
         let random_y = random::<f32>() * ARENA_HEIGHT;
@@ -456,11 +437,7 @@ pub fn move_stars(mut star_query: Query<&mut Transform, With<Star>>, time: Res<T
     }
 }
 
-pub fn send_star_to_top(
-    mut star_query: Query<&mut Transform, With<Star>>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-) {
-    let window = window_query.get_single().unwrap();
+pub fn send_star_to_top(mut star_query: Query<&mut Transform, With<Star>>) {
     for mut transform in star_query.iter_mut() {
         if transform.translation.y < -10.0 {
             transform.translation.y = ARENA_HEIGHT + 10.0;
