@@ -1,6 +1,6 @@
 use crate::{
-    Rock, RockSize, Score, ARENA_HEIGHT, ARENA_WIDTH, BIG_ROCK_SIZE, NORMAL_ROCK_SIZE, PLAYER_SIZE,
-    PLAYER_SPEED, SMALL_ROCK_SIZE,
+    rock::Rock, rock::RockSize, Score, ARENA_HEIGHT, ARENA_WIDTH, BIG_ROCK_SIZE, NORMAL_ROCK_SIZE,
+    PLAYER_SIZE, PLAYER_SPEED, SMALL_ROCK_SIZE,
 };
 
 use bevy::prelude::*;
