@@ -16,7 +16,7 @@ pub fn start_game(
     app_state: Res<State<AppState>>,
     mut app_state_next_state: ResMut<NextState<AppState>>,
 ) {
-    if keyboard_input.just_pressed(KeyCode::G) {
+    if keyboard_input.just_pressed(KeyCode::Return) {
         if app_state.0 != AppState::InGame {
             app_state_next_state.set(AppState::InGame);
             println!("Entered AppState::Game");
