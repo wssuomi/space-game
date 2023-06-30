@@ -1,22 +1,26 @@
 use crate::{
-    rock::Rock, rock::RockSize, Score, ARENA_HEIGHT, ARENA_WIDTH, BIG_ROCK_SIZE, NORMAL_ROCK_SIZE,
-    PLAYER_SIZE, PLAYER_SPEED, SMALL_ROCK_SIZE,
+    rock::Rock, rock::RockSize, PlayerRockCollisionSound, Score, ARENA_HEIGHT, ARENA_WIDTH,
+    BIG_ROCK_SIZE, NORMAL_ROCK_SIZE, SMALL_ROCK_SIZE,
 };
 
+use crate::{assets::SpriteAssets, state::AppState};
 use bevy::prelude::*;
+pub const PLAYER_SPEED: f32 = 480.0;
+pub const PLAYER_SIZE: f32 = 100.0;
 
 #[derive(Component)]
 pub struct Player {}
 
-pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn spawn_player(mut commands: Commands, handles: Res<SpriteAssets>) {
     commands.spawn((
         SpriteBundle {
             transform: Transform::from_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, 0.0),
-            texture: asset_server.load("sprites/character.png"),
+            texture: handles.player.clone(),
             ..default()
         },
         Player {},
     ));
+    println!("player spawned");
 }
 
 pub fn player_movement(
@@ -74,8 +78,8 @@ pub fn player_rock_collision(
     player_query: Query<&Transform, With<Player>>,
     rock_query: Query<(Entity, &Transform, &Rock), With<Rock>>,
     mut score: ResMut<Score>,
-    asset_server: Res<AssetServer>,
     audio: Res<Audio>,
+    sound: Res<PlayerRockCollisionSound>,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
         for (rock_entity, rock_transform, rock) in rock_query.iter() {
@@ -90,10 +94,19 @@ pub fn player_rock_collision(
             if distance < PLAYER_SIZE / 2.0 + rock_size / 2.0 {
                 score.value += 25;
                 println!("Score: {}", score.value);
-                let sound_effect = asset_server.load("audio/rock_hit.ogg");
-                audio.play(sound_effect);
+                audio.play(sound.0.clone());
                 commands.entity(rock_entity).despawn();
             }
         }
+    }
+}
+
+pub struct PlayerPlugin;
+
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_system(spawn_player.in_schedule(OnEnter(AppState::InGame)))
+            .add_system(player_movement)
+            .add_system(player_rock_collision);
     }
 }
