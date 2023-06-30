@@ -106,3 +106,16 @@ pub fn remove_rocks(
 pub fn tick_rock_spawn_timer(mut rock_spawn_timer: ResMut<RockSpawnTimer>, time: Res<Time>) {
     rock_spawn_timer.timer.tick(time.delta());
 }
+
+pub struct RockPlugin;
+
+impl Plugin for RockPlugin {
+    fn build(&self, app: &mut App) {
+        app.init_resource::<RockSpawnTimer>().add_systems((
+            spawn_rocks_over_time,
+            tick_rock_spawn_timer,
+            move_rocks,
+            remove_rocks,
+        ));
+    }
+}

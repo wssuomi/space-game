@@ -7,9 +7,9 @@ pub enum AppState {
     Game,
 }
 
-pub fn check_state(state: Res<State<AppState>>) {
-    info!("We are in the {:?} state", state.0);
-}
+// pub fn check_state(state: Res<State<AppState>>) {
+//     info!("We are in the {:?} state", state.0);
+// }
 
 pub fn start_game(
     keyboard_input: Res<Input<KeyCode>>,

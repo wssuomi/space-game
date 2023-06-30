@@ -8,7 +8,8 @@ mod wall;
 use crate::{
     assets::AssetsPlugin,
     player::PlayerPlugin,
-    state::{check_state, start_game, AppState},
+    rock::RockPlugin,
+    state::{start_game, AppState},
     wall::{ARENA_HEIGHT, ARENA_WIDTH, CLEAR_COLOR},
 };
 
@@ -20,7 +21,6 @@ fn main() {
     App::new()
         .add_state::<AppState>()
         .insert_resource(ClearColor(CLEAR_COLOR))
-        .init_resource::<rock::RockSpawnTimer>()
         .init_resource::<Score>()
         .init_resource::<ScoreTimer>()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
@@ -34,23 +34,16 @@ fn main() {
         .add_plugin(AssetsPlugin)
         .add_startup_system(setup)
         .add_plugin(PlayerPlugin)
+        .add_plugin(RockPlugin)
         .add_startup_system(star::spawn_stars)
         .add_startup_system(wall::spawn_arena_walls)
-        .add_system(rock::spawn_rocks_over_time)
-        .add_system(rock::tick_rock_spawn_timer)
-        .add_system(rock::move_rocks)
-        .add_system(rock::remove_rocks)
         .add_system(tick_score_timer)
         .add_system(add_score_over_timer)
         .add_system(star::move_stars)
         .add_system(star::send_star_to_top)
         .add_system(start_game)
-        .add_system(check_state)
         .run();
 }
-
-#[derive(Resource)]
-pub struct PlayerRockCollisionSound(Handle<AudioSource>);
 
 #[derive(Resource)]
 pub struct Score {
@@ -94,12 +87,9 @@ pub fn tick_score_timer(mut score_timer: ResMut<ScoreTimer>, time: Res<Time>) {
     score_timer.timer.tick(time.delta());
 }
 
-pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle {
         transform: Transform::from_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, 5.0),
         ..default()
     });
-
-    let player_rock_collision_sound = asset_server.load("audio/rock_hit.ogg");
-    commands.insert_resource(PlayerRockCollisionSound(player_rock_collision_sound));
 }
