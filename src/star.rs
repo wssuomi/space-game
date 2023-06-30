@@ -1,4 +1,4 @@
-use crate::wall::{ARENA_HEIGHT, ARENA_WIDTH};
+use crate::arena::{ARENA_HEIGHT, ARENA_WIDTH};
 use bevy::prelude::*;
 use rand::prelude::*;
 

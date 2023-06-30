@@ -1,8 +1,8 @@
 use crate::{
+    arena::{ARENA_HEIGHT, ARENA_WIDTH},
     assets::{AudioAssets, SpriteAssets},
     rock::{Rock, RockSize, BIG_ROCK_SIZE, NORMAL_ROCK_SIZE, SMALL_ROCK_SIZE},
     state::AppState,
-    wall::{ARENA_HEIGHT, ARENA_WIDTH},
     Score,
 };
 

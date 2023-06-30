@@ -1,17 +1,17 @@
+mod arena;
 mod assets;
 mod player;
 mod rock;
 mod star;
 mod state;
-mod wall;
 
 use crate::{
+    arena::{ARENA_HEIGHT, ARENA_WIDTH, CLEAR_COLOR},
     assets::AssetsPlugin,
     player::PlayerPlugin,
     rock::RockPlugin,
     star::StarPlugin,
     state::{start_game, AppState},
-    wall::{ARENA_HEIGHT, ARENA_WIDTH, CLEAR_COLOR},
 };
 
 use bevy::prelude::*;
@@ -37,7 +37,7 @@ fn main() {
         .add_plugin(PlayerPlugin)
         .add_plugin(RockPlugin)
         .add_plugin(StarPlugin)
-        .add_startup_system(wall::spawn_arena_walls)
+        .add_startup_system(arena::spawn_arena_walls)
         .add_system(tick_score_timer)
         .add_system(add_score_over_timer)
         .add_system(start_game)
