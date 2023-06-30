@@ -9,6 +9,7 @@ use crate::{
     assets::AssetsPlugin,
     player::PlayerPlugin,
     rock::RockPlugin,
+    star::StarPlugin,
     state::{start_game, AppState},
     wall::{ARENA_HEIGHT, ARENA_WIDTH, CLEAR_COLOR},
 };
@@ -35,12 +36,10 @@ fn main() {
         .add_startup_system(setup)
         .add_plugin(PlayerPlugin)
         .add_plugin(RockPlugin)
-        .add_startup_system(star::spawn_stars)
+        .add_plugin(StarPlugin)
         .add_startup_system(wall::spawn_arena_walls)
         .add_system(tick_score_timer)
         .add_system(add_score_over_timer)
-        .add_system(star::move_stars)
-        .add_system(star::send_star_to_top)
         .add_system(start_game)
         .run();
 }

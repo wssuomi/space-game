@@ -37,3 +37,12 @@ pub fn send_star_to_top(mut star_query: Query<&mut Transform, With<Star>>) {
         }
     }
 }
+
+pub struct StarPlugin;
+
+impl Plugin for StarPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_startup_system(spawn_stars)
+            .add_systems((move_stars, send_star_to_top));
+    }
+}
