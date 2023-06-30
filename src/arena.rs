@@ -16,6 +16,9 @@ pub const BOTTOM_WALL_Y: f32 = 0.0;
 pub const HIDE_ARENA_OVERFLOW_AREA_THICKNESS: f32 = 200.0;
 pub const WALL_THICKNESS: f32 = 10.0;
 
+pub const WALL_LAYER: f32 = 3.0;
+pub const HIDE_OVERFLOW_LAYER: f32 = 2.0;
+
 #[derive(Component)]
 pub struct ArenaWall {}
 
@@ -32,13 +35,19 @@ enum ArenaWallLocation {
 }
 
 impl ArenaWallLocation {
-    fn position(&self, wall_thickness: f32) -> Vec3 {
+    fn position(&self, wall_thickness: f32, draw_layer: f32) -> Vec3 {
         match self {
-            ArenaWallLocation::Left => Vec3::new(LEFT_WALL_X - wall_thickness / 2.0, 450.0, 3.0),
-            ArenaWallLocation::Right => Vec3::new(RIGHT_WALL_X + wall_thickness / 2.0, 450.0, 3.0),
-            ArenaWallLocation::Top => Vec3::new(450.0, TOP_WALL_Y + wall_thickness / 2.0, 3.0),
+            ArenaWallLocation::Left => {
+                Vec3::new(LEFT_WALL_X - wall_thickness / 2.0, 450.0, draw_layer)
+            }
+            ArenaWallLocation::Right => {
+                Vec3::new(RIGHT_WALL_X + wall_thickness / 2.0, 450.0, draw_layer)
+            }
+            ArenaWallLocation::Top => {
+                Vec3::new(450.0, TOP_WALL_Y + wall_thickness / 2.0, draw_layer)
+            }
             ArenaWallLocation::Bottom => {
-                Vec3::new(450.0, BOTTOM_WALL_Y - wall_thickness / 2.0, 3.0)
+                Vec3::new(450.0, BOTTOM_WALL_Y - wall_thickness / 2.0, draw_layer)
             }
         }
     }
@@ -56,11 +65,16 @@ impl ArenaWallLocation {
 }
 
 impl ArenaWallBundle {
-    fn new(location: ArenaWallLocation, wall_thickness: f32, wall_color: Color) -> ArenaWallBundle {
+    fn new(
+        location: ArenaWallLocation,
+        wall_thickness: f32,
+        wall_color: Color,
+        draw_layer: f32,
+    ) -> ArenaWallBundle {
         ArenaWallBundle {
             sprite_bundle: SpriteBundle {
                 transform: Transform {
-                    translation: location.position(wall_thickness),
+                    translation: location.position(wall_thickness, draw_layer),
                     scale: location.size(wall_thickness),
                     ..default()
                 },
@@ -80,6 +94,7 @@ pub fn spawn_arena_walls(mut commands: Commands) {
             ArenaWallLocation::Bottom,
             HIDE_ARENA_OVERFLOW_AREA_THICKNESS,
             CLEAR_COLOR,
+            HIDE_OVERFLOW_LAYER,
         ),
         ArenaWall {},
     ));
@@ -88,6 +103,7 @@ pub fn spawn_arena_walls(mut commands: Commands) {
             ArenaWallLocation::Top,
             HIDE_ARENA_OVERFLOW_AREA_THICKNESS,
             CLEAR_COLOR,
+            HIDE_OVERFLOW_LAYER,
         ),
         ArenaWall {},
     ));
@@ -96,6 +112,7 @@ pub fn spawn_arena_walls(mut commands: Commands) {
             ArenaWallLocation::Left,
             HIDE_ARENA_OVERFLOW_AREA_THICKNESS,
             CLEAR_COLOR,
+            HIDE_OVERFLOW_LAYER,
         ),
         ArenaWall {},
     ));
@@ -104,23 +121,44 @@ pub fn spawn_arena_walls(mut commands: Commands) {
             ArenaWallLocation::Right,
             HIDE_ARENA_OVERFLOW_AREA_THICKNESS,
             CLEAR_COLOR,
+            HIDE_OVERFLOW_LAYER,
         ),
         ArenaWall {},
     ));
     commands.spawn((
-        ArenaWallBundle::new(ArenaWallLocation::Top, WALL_THICKNESS, WALL_COLOR),
+        ArenaWallBundle::new(
+            ArenaWallLocation::Top,
+            WALL_THICKNESS,
+            WALL_COLOR,
+            WALL_LAYER,
+        ),
         ArenaWall {},
     ));
     commands.spawn((
-        ArenaWallBundle::new(ArenaWallLocation::Bottom, WALL_THICKNESS, WALL_COLOR),
+        ArenaWallBundle::new(
+            ArenaWallLocation::Bottom,
+            WALL_THICKNESS,
+            WALL_COLOR,
+            WALL_LAYER,
+        ),
         ArenaWall {},
     ));
     commands.spawn((
-        ArenaWallBundle::new(ArenaWallLocation::Right, WALL_THICKNESS, WALL_COLOR),
+        ArenaWallBundle::new(
+            ArenaWallLocation::Right,
+            WALL_THICKNESS,
+            WALL_COLOR,
+            WALL_LAYER,
+        ),
         ArenaWall {},
     ));
     commands.spawn((
-        ArenaWallBundle::new(ArenaWallLocation::Left, WALL_THICKNESS, WALL_COLOR),
+        ArenaWallBundle::new(
+            ArenaWallLocation::Left,
+            WALL_THICKNESS,
+            WALL_COLOR,
+            WALL_LAYER,
+        ),
         ArenaWall {},
     ));
 }
