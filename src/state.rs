@@ -11,7 +11,7 @@ pub fn check_state(state: Res<State<AppState>>) {
     info!("We are in the {:?} state", state.0);
 }
 
-pub fn transition_to_game_state(
+pub fn start_game(
     keyboard_input: Res<Input<KeyCode>>,
     app_state: Res<State<AppState>>,
     mut app_state_next_state: ResMut<NextState<AppState>>,

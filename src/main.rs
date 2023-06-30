@@ -8,7 +8,7 @@ mod wall;
 use crate::{
     assets::AssetsPlugin,
     player::PlayerPlugin,
-    state::{check_state, transition_to_game_state, AppState},
+    state::{check_state, start_game, AppState},
     wall::{ARENA_HEIGHT, ARENA_WIDTH, CLEAR_COLOR},
 };
 
@@ -44,7 +44,7 @@ fn main() {
         .add_system(add_score_over_timer)
         .add_system(star::move_stars)
         .add_system(star::send_star_to_top)
-        .add_system(transition_to_game_state)
+        .add_system(start_game)
         .add_system(check_state)
         .run();
 }
