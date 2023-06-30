@@ -1,10 +1,13 @@
 use crate::{
-    rock::Rock, rock::RockSize, PlayerRockCollisionSound, Score, ARENA_HEIGHT, ARENA_WIDTH,
-    BIG_ROCK_SIZE, NORMAL_ROCK_SIZE, SMALL_ROCK_SIZE,
+    assets::{AudioAssets, SpriteAssets},
+    rock::{Rock, RockSize, BIG_ROCK_SIZE, NORMAL_ROCK_SIZE, SMALL_ROCK_SIZE},
+    state::AppState,
+    wall::{ARENA_HEIGHT, ARENA_WIDTH},
+    Score,
 };
 
-use crate::{assets::SpriteAssets, state::AppState};
 use bevy::prelude::*;
+
 pub const PLAYER_SPEED: f32 = 480.0;
 pub const PLAYER_SIZE: f32 = 100.0;
 
@@ -79,7 +82,7 @@ pub fn player_rock_collision(
     rock_query: Query<(Entity, &Transform, &Rock), With<Rock>>,
     mut score: ResMut<Score>,
     audio: Res<Audio>,
-    sound: Res<PlayerRockCollisionSound>,
+    handles: Res<AudioAssets>,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
         for (rock_entity, rock_transform, rock) in rock_query.iter() {
@@ -94,7 +97,7 @@ pub fn player_rock_collision(
             if distance < PLAYER_SIZE / 2.0 + rock_size / 2.0 {
                 score.value += 25;
                 println!("Score: {}", score.value);
-                audio.play(sound.0.clone());
+                audio.play(handles.player_rock_collison.clone());
                 commands.entity(rock_entity).despawn();
             }
         }

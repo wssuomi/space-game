@@ -5,44 +5,16 @@ mod star;
 mod state;
 mod wall;
 
-mod prelude {
-    pub use crate::assets::*;
-    pub use crate::player::*;
-    pub use crate::rock::*;
-    pub use crate::star::*;
-    pub use crate::state::*;
-    pub use crate::wall::*;
-    pub use bevy::prelude::*;
-}
+use crate::{
+    assets::AssetsPlugin,
+    player::PlayerPlugin,
+    state::{check_state, transition_to_game_state, AppState},
+    wall::{ARENA_HEIGHT, ARENA_WIDTH, CLEAR_COLOR},
+};
 
-use crate::prelude::*;
+use bevy::prelude::*;
 
-pub const PLAYER_SPEED: f32 = 480.0;
-pub const PLAYER_SIZE: f32 = 100.0;
-pub const ROCK_COOLDOWN: f32 = 2.0;
 pub const SCORE_COOLDOWN: f32 = 1.0;
-pub const FAST_ROCK_SPEED: f32 = 100.0;
-pub const NORMAL_ROCK_SPEED: f32 = 75.0;
-pub const SLOW_ROCK_SPEED: f32 = 50.0;
-pub const BIG_ROCK_SIZE: f32 = 150.0;
-pub const NORMAL_ROCK_SIZE: f32 = 100.0;
-pub const SMALL_ROCK_SIZE: f32 = 70.0;
-pub const STAR_COUNT: u32 = 100;
-pub const STAR_SPEED: f32 = 40.0;
-pub const ARENA_WIDTH: f32 = 900.0;
-pub const ARENA_HEIGHT: f32 = 900.0;
-
-pub const WALL_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
-pub const CLEAR_COLOR: Color = Color::rgb(0.0, 0.0, 0.2);
-
-pub const LEFT_WALL_X: f32 = 0.0;
-pub const RIGHT_WALL_X: f32 = 900.0;
-
-pub const TOP_WALL_Y: f32 = 900.0;
-pub const BOTTOM_WALL_Y: f32 = 0.0;
-
-pub const HIDE_ARENA_OVERFLOW_AREA_THICKNESS: f32 = 200.0;
-pub const WALL_THICKNESS: f32 = 10.0;
 
 fn main() {
     App::new()

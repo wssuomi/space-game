@@ -1,8 +1,19 @@
-use crate::{
-    ARENA_HEIGHT, ARENA_WIDTH, BOTTOM_WALL_Y, CLEAR_COLOR, HIDE_ARENA_OVERFLOW_AREA_THICKNESS,
-    LEFT_WALL_X, RIGHT_WALL_X, TOP_WALL_Y, WALL_COLOR, WALL_THICKNESS,
-};
 use bevy::prelude::*;
+
+pub const ARENA_WIDTH: f32 = 900.0;
+pub const ARENA_HEIGHT: f32 = 900.0;
+
+pub const WALL_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
+pub const CLEAR_COLOR: Color = Color::rgb(0.0, 0.0, 0.2);
+
+pub const LEFT_WALL_X: f32 = 0.0;
+pub const RIGHT_WALL_X: f32 = 900.0;
+
+pub const TOP_WALL_Y: f32 = 900.0;
+pub const BOTTOM_WALL_Y: f32 = 0.0;
+
+pub const HIDE_ARENA_OVERFLOW_AREA_THICKNESS: f32 = 200.0;
+pub const WALL_THICKNESS: f32 = 10.0;
 
 #[derive(Component)]
 pub struct ArenaWall {}

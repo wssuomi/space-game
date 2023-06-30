@@ -1,6 +1,9 @@
-use crate::{ARENA_HEIGHT, ARENA_WIDTH, STAR_COUNT, STAR_SPEED};
+use crate::wall::{ARENA_HEIGHT, ARENA_WIDTH};
 use bevy::prelude::*;
 use rand::prelude::*;
+
+pub const STAR_COUNT: u32 = 100;
+pub const STAR_SPEED: f32 = 40.0;
 
 #[derive(Component)]
 pub struct Star {}

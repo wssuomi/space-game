@@ -1,9 +1,14 @@
-use crate::{
-    ARENA_HEIGHT, ARENA_WIDTH, BIG_ROCK_SIZE, FAST_ROCK_SPEED, NORMAL_ROCK_SIZE, NORMAL_ROCK_SPEED,
-    ROCK_COOLDOWN, SLOW_ROCK_SPEED, SMALL_ROCK_SIZE,
-};
+use crate::wall::{ARENA_HEIGHT, ARENA_WIDTH};
 use bevy::prelude::*;
 use rand::prelude::*;
+
+pub const ROCK_COOLDOWN: f32 = 2.0;
+pub const FAST_ROCK_SPEED: f32 = 100.0;
+pub const NORMAL_ROCK_SPEED: f32 = 75.0;
+pub const SLOW_ROCK_SPEED: f32 = 50.0;
+pub const BIG_ROCK_SIZE: f32 = 150.0;
+pub const NORMAL_ROCK_SIZE: f32 = 100.0;
+pub const SMALL_ROCK_SIZE: f32 = 70.0;
 
 #[derive(Resource)]
 pub struct RockSpawnTimer {

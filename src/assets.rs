@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use bevy::prelude::*;
 
 #[derive(Debug, Resource)]
 pub struct SpriteAssets {
