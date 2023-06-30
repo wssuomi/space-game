@@ -14,7 +14,11 @@ use crate::{
     state::{start_game, AppState},
 };
 
-use bevy::prelude::*;
+use bevy::{
+    diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+    prelude::*,
+    window::PresentMode,
+};
 
 pub const SCORE_COOLDOWN: f32 = 1.0;
 
@@ -30,10 +34,13 @@ fn main() {
             primary_window: Some(Window {
                 title: "Space game".into(),
                 resolution: (ARENA_WIDTH, ARENA_HEIGHT).into(),
+                present_mode: PresentMode::AutoNoVsync,
                 ..default()
             }),
             ..default()
         }))
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
+        .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(AssetsPlugin)
         .add_plugin(ArenaPlugin)
         .add_plugin(PlayerPlugin)
