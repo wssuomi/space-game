@@ -4,7 +4,7 @@ use bevy::prelude::*;
 pub enum AppState {
     #[default]
     MainMenu,
-    InGame,
+    Game,
 }
 
 pub fn check_state(state: Res<State<AppState>>) {
@@ -17,8 +17,8 @@ pub fn start_game(
     mut app_state_next_state: ResMut<NextState<AppState>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::Return) {
-        if app_state.0 != AppState::InGame {
-            app_state_next_state.set(AppState::InGame);
+        if app_state.0 != AppState::Game {
+            app_state_next_state.set(AppState::Game);
             println!("Entered AppState::Game");
         }
     }
