@@ -1,10 +1,11 @@
 use bevy::prelude::*;
 
+use crate::CLEAR_COLOR;
+
 pub const ARENA_WIDTH: f32 = 900.0;
 pub const ARENA_HEIGHT: f32 = 900.0;
 
 pub const WALL_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
-pub const CLEAR_COLOR: Color = Color::rgb(0.0, 0.0, 0.2);
 
 pub const LEFT_WALL_X: f32 = 0.0;
 pub const RIGHT_WALL_X: f32 = 900.0;
@@ -122,4 +123,12 @@ pub fn spawn_arena_walls(mut commands: Commands) {
         ArenaWallBundle::new(ArenaWallLocation::Left, WALL_THICKNESS, WALL_COLOR),
         ArenaWall {},
     ));
+}
+
+pub struct ArenaPlugin;
+
+impl Plugin for ArenaPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_startup_system(spawn_arena_walls);
+    }
 }
