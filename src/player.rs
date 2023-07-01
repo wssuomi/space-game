@@ -109,7 +109,6 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(spawn_player.in_schedule(OnEnter(AppState::Game)))
-            .add_system(player_movement)
-            .add_system(player_rock_collision);
+            .add_systems((player_movement, player_rock_collision).in_set(OnUpdate(AppState::Game)));
     }
 }

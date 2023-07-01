@@ -1,4 +1,7 @@
-use crate::arena::{ARENA_HEIGHT, ARENA_WIDTH};
+use crate::{
+    arena::{ARENA_HEIGHT, ARENA_WIDTH},
+    state::AppState,
+};
 use bevy::prelude::*;
 use rand::prelude::*;
 
@@ -111,11 +114,14 @@ pub struct RockPlugin;
 
 impl Plugin for RockPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<RockSpawnTimer>().add_systems((
-            spawn_rocks_over_time,
-            tick_rock_spawn_timer,
-            move_rocks,
-            remove_rocks,
-        ));
+        app.init_resource::<RockSpawnTimer>().add_systems(
+            (
+                spawn_rocks_over_time,
+                tick_rock_spawn_timer,
+                move_rocks,
+                remove_rocks,
+            )
+                .in_set(OnUpdate(AppState::Game)),
+        );
     }
 }
