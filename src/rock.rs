@@ -40,8 +40,26 @@ pub enum RockSpeed {
 
 #[derive(Component)]
 pub struct Rock {
-    pub size: RockSize,
-    pub speed: RockSpeed,
+    pub rock_size: RockSize,
+    pub rock_speed: RockSpeed,
+}
+
+impl Rock {
+    pub fn speed(&self) -> f32 {
+        match self.rock_speed {
+            RockSpeed::Fast => FAST_ROCK_SPEED,
+            RockSpeed::Normal => NORMAL_ROCK_SPEED,
+            RockSpeed::Slow => SLOW_ROCK_SPEED,
+        }
+    }
+
+    pub fn size(&self) -> f32 {
+        match self.rock_size {
+            RockSize::Big => BIG_ROCK_SIZE,
+            RockSize::Normal => NORMAL_ROCK_SIZE,
+            RockSize::Small => SMALL_ROCK_SIZE,
+        }
+    }
 }
 
 pub fn spawn_rocks_over_time(
@@ -72,8 +90,8 @@ pub fn spawn_rocks_over_time(
                 ..default()
             },
             Rock {
-                size: rock_size,
-                speed: rock_speed,
+                rock_size,
+                rock_speed,
             },
         ));
     }
@@ -81,12 +99,7 @@ pub fn spawn_rocks_over_time(
 
 pub fn move_rocks(mut rock_query: Query<(&mut Transform, &Rock)>, time: Res<Time>) {
     for (mut transform, rock) in rock_query.iter_mut() {
-        let rock_speed = match rock.speed {
-            RockSpeed::Fast => FAST_ROCK_SPEED,
-            RockSpeed::Normal => NORMAL_ROCK_SPEED,
-            RockSpeed::Slow => SLOW_ROCK_SPEED,
-        };
-        transform.translation.y -= rock_speed * time.delta_seconds();
+        transform.translation.y -= rock.speed() * time.delta_seconds();
     }
 }
 
@@ -95,12 +108,7 @@ pub fn remove_rocks(
     rock_query: Query<(Entity, &Transform, &Rock), With<Rock>>,
 ) {
     for (rock_entity, rock_transform, rock) in rock_query.iter() {
-        let rock_size = match rock.size {
-            RockSize::Big => BIG_ROCK_SIZE,
-            RockSize::Normal => NORMAL_ROCK_SIZE,
-            RockSize::Small => SMALL_ROCK_SIZE,
-        };
-        if rock_transform.translation.y < 0.0 - rock_size {
+        if rock_transform.translation.y < 0.0 - rock.size() {
             commands.entity(rock_entity).despawn();
         }
     }

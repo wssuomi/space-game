@@ -1,7 +1,7 @@
 use crate::{
     arena::{ARENA_HEIGHT, ARENA_WIDTH},
     assets::{AudioAssets, SpriteAssets},
-    rock::{Rock, RockSize, BIG_ROCK_SIZE, NORMAL_ROCK_SIZE, SMALL_ROCK_SIZE},
+    rock::Rock,
     state::AppState,
     Score,
 };
@@ -86,15 +86,10 @@ pub fn player_rock_collision(
 ) {
     if let Ok(player_transform) = player_query.get_single() {
         for (rock_entity, rock_transform, rock) in rock_query.iter() {
-            let rock_size = match rock.size {
-                RockSize::Big => BIG_ROCK_SIZE,
-                RockSize::Normal => NORMAL_ROCK_SIZE,
-                RockSize::Small => SMALL_ROCK_SIZE,
-            };
             let distance = player_transform
                 .translation
                 .distance(rock_transform.translation);
-            if distance < PLAYER_SIZE / 2.0 + rock_size / 2.0 {
+            if distance < PLAYER_SIZE / 2.0 + rock.size() / 2.0 {
                 score.value += 25;
                 println!("Score: {}", score.value);
                 audio.play(handles.player_rock_collison.clone());
