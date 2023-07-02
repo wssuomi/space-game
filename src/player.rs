@@ -2,8 +2,8 @@ use crate::{
     arena::{ARENA_HEIGHT, ARENA_WIDTH},
     assets::{AudioAssets, SpriteAssets},
     rock::Rock,
+    score::Score,
     state::AppState,
-    Score,
 };
 
 use bevy::prelude::*;
