@@ -11,7 +11,7 @@ use crate::{
     player::PlayerPlugin,
     rock::RockPlugin,
     star::StarPlugin,
-    state::{start_game, AppState},
+    state::{go_to_main_menu, start_game, AppState},
 };
 
 use bevy::{
@@ -50,6 +50,7 @@ fn main() {
         .add_system(tick_score_timer)
         .add_system(add_score_over_timer)
         .add_system(start_game)
+        .add_system(go_to_main_menu)
         .run();
 }
 
