@@ -103,7 +103,7 @@ pub fn move_rocks(mut rock_query: Query<(&mut Transform, &Rock)>, time: Res<Time
     }
 }
 
-pub fn remove_rocks(
+pub fn remove_off_screen_rocks(
     mut commands: Commands,
     rock_query: Query<(Entity, &Transform, &Rock), With<Rock>>,
 ) {
@@ -118,18 +118,26 @@ pub fn tick_rock_spawn_timer(mut rock_spawn_timer: ResMut<RockSpawnTimer>, time:
     rock_spawn_timer.timer.tick(time.delta());
 }
 
+pub fn despawn_rocks(mut commands: Commands, rock_query: Query<Entity, With<Rock>>) {
+    for entity in rock_query.iter() {
+        commands.entity(entity).despawn();
+    }
+}
+
 pub struct RockPlugin;
 
 impl Plugin for RockPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<RockSpawnTimer>().add_systems(
-            (
-                spawn_rocks_over_time,
-                tick_rock_spawn_timer,
-                move_rocks,
-                remove_rocks,
+        app.init_resource::<RockSpawnTimer>()
+            .add_systems(
+                (
+                    spawn_rocks_over_time,
+                    tick_rock_spawn_timer,
+                    move_rocks,
+                    remove_off_screen_rocks,
+                )
+                    .in_set(OnUpdate(AppState::Game)),
             )
-                .in_set(OnUpdate(AppState::Game)),
-        );
+            .add_system(despawn_rocks.in_schedule(OnExit(AppState::Game)));
     }
 }
