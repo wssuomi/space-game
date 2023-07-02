@@ -99,11 +99,18 @@ pub fn player_rock_collision(
     }
 }
 
+pub fn despawn_player(mut commands: Commands, player_query: Query<Entity, With<Player>>) {
+    if let Ok(entity) = player_query.get_single() {
+        commands.entity(entity).despawn();
+    }
+}
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(spawn_player.in_schedule(OnEnter(AppState::Game)))
-            .add_systems((player_movement, player_rock_collision).in_set(OnUpdate(AppState::Game)));
+            .add_systems((player_movement, player_rock_collision).in_set(OnUpdate(AppState::Game)))
+            .add_system(despawn_player.in_schedule(OnExit(AppState::Game)));
     }
 }
