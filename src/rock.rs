@@ -60,6 +60,21 @@ impl Rock {
             RockSize::Small => SMALL_ROCK_SIZE,
         }
     }
+    pub fn damage(&self) -> f32 {
+        let base = match self.rock_speed {
+            RockSpeed::Fast => 10.0,
+            RockSpeed::Normal => 7.5,
+            RockSpeed::Slow => 5.0,
+        };
+
+        let multiplier = match self.rock_size {
+            RockSize::Big => 3.0,
+            RockSize::Normal => 2.0,
+            RockSize::Small => 1.0,
+        };
+
+        return base * multiplier;
+    }
 }
 
 pub fn spawn_rocks_over_time(

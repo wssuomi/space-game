@@ -10,9 +10,16 @@ use bevy::prelude::*;
 
 pub const PLAYER_SPEED: f32 = 480.0;
 pub const PLAYER_SIZE: f32 = 100.0;
+pub const PLAYER_STARTING_HEALTH: f32 = 100.0;
 
 #[derive(Component)]
-pub struct Player {}
+pub struct Player {
+    health: f32,
+}
+
+pub struct PlayerHitRock {
+    damage: f32,
+}
 
 pub fn spawn_player(mut commands: Commands, handles: Res<SpriteAssets>) {
     commands.spawn((
@@ -21,7 +28,9 @@ pub fn spawn_player(mut commands: Commands, handles: Res<SpriteAssets>) {
             texture: handles.player.clone(),
             ..default()
         },
-        Player {},
+        Player {
+            health: PLAYER_STARTING_HEALTH,
+        },
     ));
     println!("player spawned");
 }
@@ -80,6 +89,7 @@ pub fn player_rock_collision(
     mut commands: Commands,
     player_query: Query<&Transform, With<Player>>,
     rock_query: Query<(Entity, &Transform, &Rock), With<Rock>>,
+    mut event_writer: EventWriter<PlayerHitRock>,
     mut score: ResMut<Score>,
     audio: Res<Audio>,
     handles: Res<AudioAssets>,
@@ -92,8 +102,29 @@ pub fn player_rock_collision(
             if distance < PLAYER_SIZE / 2.0 + rock.size() / 2.0 {
                 score.value += 25;
                 println!("Score: {}", score.value);
+                event_writer.send(PlayerHitRock {
+                    damage: rock.damage(),
+                });
                 audio.play(handles.player_rock_collison.clone());
                 commands.entity(rock_entity).despawn();
+            }
+        }
+    }
+}
+
+pub fn damage_player(
+    mut event_reader: EventReader<PlayerHitRock>,
+    mut player_query: Query<&mut Player, With<Player>>,
+    mut next_app_state: ResMut<NextState<AppState>>,
+) {
+    if let Ok(mut player) = player_query.get_single_mut() {
+        for event in event_reader.iter() {
+            player.health -= event.damage;
+            println!("damage: {}", event.damage);
+            println!("player health: {}", player.health);
+            if player.health <= 0.0 {
+                next_app_state.set(AppState::MainMenu);
+                println!("Ship Exploded.");
             }
         }
     }
@@ -110,7 +141,11 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(spawn_player.in_schedule(OnEnter(AppState::Game)))
-            .add_systems((player_movement, player_rock_collision).in_set(OnUpdate(AppState::Game)))
+            .add_event::<PlayerHitRock>()
+            .add_systems(
+                (player_movement, player_rock_collision, damage_player)
+                    .in_set(OnUpdate(AppState::Game)),
+            )
             .add_system(despawn_player.in_schedule(OnExit(AppState::Game)));
     }
 }
