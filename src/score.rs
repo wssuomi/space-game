@@ -16,6 +16,17 @@ impl Default for Score {
 }
 
 #[derive(Resource)]
+pub struct Highscore {
+    pub value: u32,
+}
+
+impl Default for Highscore {
+    fn default() -> Highscore {
+        Highscore { value: 0 }
+    }
+}
+
+#[derive(Resource)]
 pub struct ScoreTimer {
     pub timer: Timer,
 }
@@ -55,17 +66,33 @@ pub fn remove_score_timer_resource(mut commands: Commands) {
     commands.remove_resource::<ScoreTimer>();
 }
 
+pub fn update_highscore(score: Res<Score>, mut highscore: ResMut<Highscore>) {
+    if score.value > highscore.value {
+        highscore.value = score.value;
+    }
+}
+
+pub fn print_highscore(highscore: Res<Highscore>) {
+    println!("Highscore: {}", highscore.value);
+}
+
 pub struct ScorePlugin;
 
 impl Plugin for ScorePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            (add_score_resource, add_score_timer_resource).in_schedule(OnEnter(AppState::Game)),
-        )
-        .add_systems((add_score_over_time, tick_score_timer).in_set(OnUpdate(AppState::Game)))
-        .add_systems(
-            (remove_score_resource, remove_score_timer_resource)
-                .in_schedule(OnExit(AppState::Game)),
-        );
+        app.init_resource::<Highscore>()
+            .add_systems(
+                (add_score_resource, add_score_timer_resource).in_schedule(OnEnter(AppState::Game)),
+            )
+            .add_systems((add_score_over_time, tick_score_timer).in_set(OnUpdate(AppState::Game)))
+            .add_systems(
+                (
+                    remove_score_resource,
+                    remove_score_timer_resource,
+                    update_highscore,
+                    print_highscore.after(update_highscore),
+                )
+                    .in_schedule(OnExit(AppState::Game)),
+            );
     }
 }
