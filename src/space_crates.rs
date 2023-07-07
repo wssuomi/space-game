@@ -14,6 +14,9 @@ pub const CRATE_COOLDOWN: f32 = 10.0;
 #[derive(Component)]
 pub struct HealthCrate;
 
+#[derive(Component)]
+pub struct SpaceCrate;
+
 #[derive(Resource)]
 pub struct CrateSpawnTimer {
     pub timer: Timer,
@@ -36,11 +39,12 @@ pub fn spawn_crates(
         let random_x = random::<f32>() * ARENA_WIDTH;
         commands.spawn((
             SpriteBundle {
-                transform: Transform::from_xyz(random_x, CRATE_HEIGHT + ARENA_HEIGHT - 200.0, 0.0),
+                transform: Transform::from_xyz(random_x, CRATE_HEIGHT + ARENA_HEIGHT, 0.0),
                 texture: handles.health_crate.clone(),
                 ..default()
             },
             HealthCrate {},
+            SpaceCrate {},
         ));
         println!("crate spawned");
     }
@@ -50,11 +54,20 @@ pub fn tick_crate_spawn_timer(mut crate_spawn_timer: ResMut<CrateSpawnTimer>, ti
     crate_spawn_timer.timer.tick(time.delta());
 }
 
+pub fn move_crates(mut crate_query: Query<&mut Transform, With<SpaceCrate>>, time: Res<Time>) {
+    for mut transform in crate_query.iter_mut() {
+        transform.translation.y -= CRATE_SPEED * time.delta_seconds();
+    }
+}
+
 pub struct CratePlugin;
 
 impl Plugin for CratePlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<CrateSpawnTimer>()
-            .add_systems((spawn_crates, tick_crate_spawn_timer));
+        app.init_resource::<CrateSpawnTimer>().add_systems((
+            spawn_crates,
+            tick_crate_spawn_timer,
+            move_crates,
+        ));
     }
 }
