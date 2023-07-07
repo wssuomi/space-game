@@ -7,6 +7,8 @@ pub struct SpriteAssets {
     pub normal_rock: Handle<Image>,
     pub small_rock: Handle<Image>,
     pub star: Handle<Image>,
+    pub health_crate: Handle<Image>,
+    pub explosive_crate: Handle<Image>,
 }
 
 #[derive(Resource)]
@@ -29,6 +31,8 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         normal_rock: asset_server.load("sprites/normal_rock.png"),
         small_rock: asset_server.load("sprites/small_rock.png"),
         star: asset_server.load("sprites/star.png"),
+        health_crate: asset_server.load("sprites/health_box.png"),
+        explosive_crate: asset_server.load("sprites/explosive_box.png"),
     };
     commands.insert_resource(sprite_assets);
     let audio_assets = AudioAssets {
