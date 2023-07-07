@@ -3,6 +3,7 @@ mod assets;
 mod player;
 mod rock;
 mod score;
+mod space_crates;
 mod star;
 mod state;
 
@@ -12,6 +13,7 @@ use crate::{
     player::PlayerPlugin,
     rock::RockPlugin,
     score::ScorePlugin,
+    space_crates::CratePlugin,
     star::StarPlugin,
     state::{go_to_main_menu, start_game, AppState},
 };
@@ -44,6 +46,7 @@ fn main() {
         .add_plugin(PlayerPlugin)
         .add_plugin(StarPlugin)
         .add_plugin(RockPlugin)
+        .add_plugin(CratePlugin)
         .add_plugin(ScorePlugin)
         .add_startup_system(setup)
         .add_system(start_game)
