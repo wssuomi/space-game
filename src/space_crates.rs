@@ -60,6 +60,18 @@ pub fn move_crates(mut crate_query: Query<&mut Transform, With<SpaceCrate>>, tim
     }
 }
 
+pub fn remove_off_screen_crates(
+    mut commands: Commands,
+    crate_query: Query<(Entity, &Transform), With<SpaceCrate>>,
+) {
+    for (entity, transform) in crate_query.iter() {
+        if transform.translation.y < 0.0 - CRATE_HEIGHT {
+            commands.entity(entity).despawn();
+            println!("crate despawned");
+        }
+    }
+}
+
 pub struct CratePlugin;
 
 impl Plugin for CratePlugin {
@@ -68,6 +80,7 @@ impl Plugin for CratePlugin {
             spawn_crates,
             tick_crate_spawn_timer,
             move_crates,
+            remove_off_screen_crates,
         ));
     }
 }
