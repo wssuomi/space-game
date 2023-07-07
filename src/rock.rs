@@ -1,5 +1,6 @@
 use crate::{
     arena::{ARENA_HEIGHT, ARENA_WIDTH},
+    assets::SpriteAssets,
     state::AppState,
 };
 use bevy::prelude::*;
@@ -79,7 +80,7 @@ impl Rock {
 
 pub fn spawn_rocks_over_time(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    handles: Res<SpriteAssets>,
     rock_spawn_timer: Res<RockSpawnTimer>,
 ) {
     if rock_spawn_timer.timer.finished() {
@@ -87,9 +88,9 @@ pub fn spawn_rocks_over_time(
 
         let mut rng = thread_rng();
         let (rock_size, rock_sprite) = match rng.gen_range(0..3) {
-            0 => (RockSize::Small, "sprites/small_rock.png"),
-            1 => (RockSize::Normal, "sprites/normal_rock.png"),
-            _ => (RockSize::Big, "sprites/big_rock.png"),
+            0 => (RockSize::Small, handles.small_rock.clone()),
+            1 => (RockSize::Normal, handles.normal_rock.clone()),
+            _ => (RockSize::Big, handles.big_rock.clone()),
         };
 
         let rock_speed: RockSpeed = match rng.gen_range(0..3) {
@@ -101,7 +102,7 @@ pub fn spawn_rocks_over_time(
         commands.spawn((
             SpriteBundle {
                 transform: Transform::from_xyz(random_x, BIG_ROCK_SIZE + ARENA_HEIGHT, 0.0),
-                texture: asset_server.load(rock_sprite),
+                texture: rock_sprite,
                 ..default()
             },
             Rock {
