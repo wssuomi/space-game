@@ -73,18 +73,26 @@ pub fn remove_off_screen_crates(
     }
 }
 
+pub fn despawn_crates(mut commands: Commands, mut crate_query: Query<Entity, With<SpaceCrate>>) {
+    for entity in crate_query.iter_mut() {
+        commands.entity(entity).despawn();
+    }
+}
+
 pub struct CratePlugin;
 
 impl Plugin for CratePlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<CrateSpawnTimer>().add_systems(
-            (
-                spawn_crates,
-                tick_crate_spawn_timer,
-                move_crates,
-                remove_off_screen_crates,
+        app.init_resource::<CrateSpawnTimer>()
+            .add_systems(
+                (
+                    spawn_crates,
+                    tick_crate_spawn_timer,
+                    move_crates,
+                    remove_off_screen_crates,
+                )
+                    .in_set(OnUpdate(AppState::Game)),
             )
-                .in_set(OnUpdate(AppState::Game)),
-        );
+            .add_system(despawn_crates.in_schedule(OnExit(AppState::Game)));
     }
 }
