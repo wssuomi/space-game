@@ -4,6 +4,7 @@ use rand::random;
 use crate::{
     arena::{ARENA_HEIGHT, ARENA_WIDTH},
     assets::SpriteAssets,
+    state::AppState,
 };
 
 pub const CRATE_SPEED: f32 = 100.0;
@@ -76,11 +77,14 @@ pub struct CratePlugin;
 
 impl Plugin for CratePlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<CrateSpawnTimer>().add_systems((
-            spawn_crates,
-            tick_crate_spawn_timer,
-            move_crates,
-            remove_off_screen_crates,
-        ));
+        app.init_resource::<CrateSpawnTimer>().add_systems(
+            (
+                spawn_crates,
+                tick_crate_spawn_timer,
+                move_crates,
+                remove_off_screen_crates,
+            )
+                .in_set(OnUpdate(AppState::Game)),
+        );
     }
 }
