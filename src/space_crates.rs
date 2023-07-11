@@ -79,11 +79,19 @@ pub fn despawn_crates(mut commands: Commands, mut crate_query: Query<Entity, Wit
     }
 }
 
+pub fn add_crate_timer_resource(mut commands: Commands) {
+    commands.insert_resource(CrateSpawnTimer::default())
+}
+
+pub fn remove_crate_timer_resource(mut commands: Commands) {
+    commands.remove_resource::<CrateSpawnTimer>();
+}
+
 pub struct CratePlugin;
 
 impl Plugin for CratePlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<CrateSpawnTimer>()
+        app.add_system(add_crate_timer_resource.in_schedule(OnEnter(AppState::Game)))
             .add_systems(
                 (
                     spawn_crates,
@@ -93,6 +101,8 @@ impl Plugin for CratePlugin {
                 )
                     .in_set(OnUpdate(AppState::Game)),
             )
-            .add_system(despawn_crates.in_schedule(OnExit(AppState::Game)));
+            .add_systems(
+                (despawn_crates, remove_crate_timer_resource).in_schedule(OnExit(AppState::Game)),
+            );
     }
 }
