@@ -11,6 +11,7 @@ pub const CRATE_SPEED: f32 = 100.0;
 pub const CRATE_WIDTH: f32 = 90.0;
 pub const CRATE_HEIGHT: f32 = 54.0;
 pub const CRATE_COOLDOWN: f32 = 10.0;
+pub const CRATE_HEAL: f32 = 20.0;
 
 #[derive(Component)]
 pub struct HealthCrate;

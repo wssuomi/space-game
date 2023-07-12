@@ -3,10 +3,11 @@ use crate::{
     assets::{AudioAssets, SpriteAssets},
     rock::Rock,
     score::Score,
+    space_crates::{SpaceCrate, CRATE_HEAL, CRATE_HEIGHT, CRATE_WIDTH},
     state::AppState,
 };
 
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::collide_aabb::collide};
 
 pub const PLAYER_SPEED: f32 = 480.0;
 pub const PLAYER_SIZE: f32 = 100.0;
@@ -19,6 +20,10 @@ pub struct Player {
 
 pub struct PlayerHitRock {
     damage: f32,
+}
+
+pub struct PlayerCollectedHealthCrate {
+    health: f32,
 }
 
 pub fn spawn_player(mut commands: Commands, handles: Res<SpriteAssets>) {
@@ -112,6 +117,49 @@ pub fn player_rock_collision(
     }
 }
 
+pub fn player_crate_collision(
+    mut commands: Commands,
+    player_query: Query<&Transform, With<Player>>,
+    crate_query: Query<(Entity, &Transform), With<SpaceCrate>>,
+    mut event_writer: EventWriter<PlayerCollectedHealthCrate>,
+    audio: Res<Audio>,
+    handles: Res<AudioAssets>,
+) {
+    if let Ok(player_transform) = player_query.get_single() {
+        for (entity, space_crate_transform) in crate_query.iter() {
+            if collide(
+                player_transform.translation,
+                Vec2::new(PLAYER_SIZE, PLAYER_SIZE),
+                space_crate_transform.translation,
+                Vec2::new(CRATE_WIDTH, CRATE_HEIGHT),
+            )
+            .is_some()
+            {
+                event_writer.send(PlayerCollectedHealthCrate { health: CRATE_HEAL });
+                audio.play(handles.collect_repair.clone());
+                commands.entity(entity).despawn();
+            }
+        }
+    }
+}
+
+pub fn health_crate_heal_player(
+    mut event_reader: EventReader<PlayerCollectedHealthCrate>,
+    mut player_query: Query<&mut Player, With<Player>>,
+) {
+    if let Ok(mut player) = player_query.get_single_mut() {
+        for event in event_reader.iter() {
+            player.health += event.health;
+            println!("damage: {}", event.health);
+            println!("player health: {}", player.health);
+            if player.health >= 100.0 {
+                player.health = 100.0;
+            }
+            println!("Player health: {}", player.health);
+        }
+    }
+}
+
 pub fn damage_player(
     mut event_reader: EventReader<PlayerHitRock>,
     mut player_query: Query<&mut Player, With<Player>>,
@@ -142,8 +190,15 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(spawn_player.in_schedule(OnEnter(AppState::Game)))
             .add_event::<PlayerHitRock>()
+            .add_event::<PlayerCollectedHealthCrate>()
             .add_systems(
-                (player_movement, player_rock_collision, damage_player)
+                (
+                    player_crate_collision,
+                    player_movement,
+                    player_rock_collision,
+                    damage_player,
+                    health_crate_heal_player,
+                )
                     .in_set(OnUpdate(AppState::Game)),
             )
             .add_system(despawn_player.in_schedule(OnExit(AppState::Game)));
