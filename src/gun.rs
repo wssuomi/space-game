@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 
 use crate::{arena::ARENA_HEIGHT, assets::SpriteAssets, player::Player, state::AppState};
@@ -16,9 +18,15 @@ pub struct BulletCooldownTimer {
 
 impl Default for BulletCooldownTimer {
     fn default() -> Self {
-        BulletCooldownTimer {
+        let mut bullet_cooldown_timer = BulletCooldownTimer {
             timer: Timer::from_seconds(BULLET_COOLDOWN, TimerMode::Once),
-        }
+        };
+
+        bullet_cooldown_timer
+            .timer
+            .set_elapsed(Duration::from_secs_f32(BULLET_COOLDOWN));
+
+        return bullet_cooldown_timer;
     }
 }
 
