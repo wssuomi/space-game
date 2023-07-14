@@ -11,10 +11,10 @@ use crate::{
     state::AppState,
 };
 
-pub const BULLET_SPEED: f32 = 100.0;
+pub const BULLET_SPEED: f32 = 600.0;
 pub const BULLET_WIDTH: f32 = 10.0;
 pub const BULLET_HEIGHT: f32 = 30.0;
-pub const BULLET_COOLDOWN: f32 = 2.0;
+pub const BULLET_COOLDOWN: f32 = 1.0;
 
 #[derive(Component)]
 pub struct Bullet;
