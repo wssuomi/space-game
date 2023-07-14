@@ -22,12 +22,12 @@ pub struct PlayerHitRock {
     damage: f32,
 }
 
-pub struct PlayerCollectedHealthCrate {
-    health: f32,
-}
-
 pub struct PlayerHitExplosive {
     damage: f32,
+}
+
+pub struct HealPlayer {
+    healing: f32,
 }
 
 pub fn spawn_player(mut commands: Commands, handles: Res<SpriteAssets>) {
@@ -125,7 +125,7 @@ pub fn player_crate_collision(
     mut commands: Commands,
     player_query: Query<&Transform, With<Player>>,
     crate_query: Query<(Entity, &Transform, &SpaceCrate), With<SpaceCrate>>,
-    mut repair_event_writer: EventWriter<PlayerCollectedHealthCrate>,
+    mut repair_event_writer: EventWriter<HealPlayer>,
     mut explosive_event_writer: EventWriter<PlayerHitExplosive>,
     audio: Res<Audio>,
     handles: Res<AudioAssets>,
@@ -142,7 +142,9 @@ pub fn player_crate_collision(
             {
                 match space_crate.crate_type {
                     crate::space_crates::CrateType::Health => {
-                        repair_event_writer.send(PlayerCollectedHealthCrate { health: CRATE_HEAL });
+                        repair_event_writer.send(HealPlayer {
+                            healing: CRATE_HEAL,
+                        });
                         audio.play(handles.collect_repair.clone());
                         commands.entity(entity).despawn();
                     }
@@ -159,14 +161,13 @@ pub fn player_crate_collision(
     }
 }
 
-pub fn health_crate_heal_player(
-    mut event_reader: EventReader<PlayerCollectedHealthCrate>,
+pub fn heal_player(
+    mut event_reader: EventReader<HealPlayer>,
     mut player_query: Query<&mut Player, With<Player>>,
 ) {
     if let Ok(mut player) = player_query.get_single_mut() {
         for event in event_reader.iter() {
-            player.health += event.health;
-            println!("damage: {}", event.health);
+            player.health += event.healing;
             println!("player health: {}", player.health);
             if player.health >= 100.0 {
                 player.health = 100.0;
@@ -224,15 +225,15 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(spawn_player.in_schedule(OnEnter(AppState::Game)))
             .add_event::<PlayerHitRock>()
-            .add_event::<PlayerCollectedHealthCrate>()
             .add_event::<PlayerHitExplosive>()
+            .add_event::<HealPlayer>()
             .add_systems(
                 (
                     player_crate_collision,
                     player_movement,
                     player_rock_collision,
                     damage_player,
-                    health_crate_heal_player,
+                    heal_player,
                     explosive_crate_damage_player,
                 )
                     .in_set(OnUpdate(AppState::Game)),
