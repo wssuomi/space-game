@@ -15,6 +15,7 @@ pub struct SpriteAssets {
 pub struct AudioAssets {
     pub player_rock_collison: Handle<AudioSource>,
     pub collect_repair: Handle<AudioSource>,
+    pub hit_explosive: Handle<AudioSource>,
 }
 
 pub struct AssetsPlugin;
@@ -39,6 +40,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let audio_assets = AudioAssets {
         player_rock_collison: asset_server.load("audio/rock_hit.ogg"),
         collect_repair: asset_server.load("audio/collect_repair.ogg"),
+        hit_explosive: asset_server.load("audio/hit_explosive.ogg"),
     };
     commands.insert_resource(audio_assets);
 }
