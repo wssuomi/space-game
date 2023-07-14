@@ -70,6 +70,12 @@ pub fn despawn_off_screen_bullets(
     }
 }
 
+pub fn despawn_all_bullets(mut commands: Commands, bullet_query: Query<Entity, With<Bullet>>) {
+    for entity in bullet_query.iter() {
+        commands.entity(entity).despawn();
+    }
+}
+
 pub fn add_bullet_cooldown_timer_resource(mut commands: Commands) {
     commands.insert_resource(BulletCooldownTimer::default())
 }
@@ -99,6 +105,9 @@ impl Plugin for GunPlugin {
                 )
                     .in_set(OnUpdate(AppState::Game)),
             )
-            .add_system(remove_bullet_cooldown_timer_resource.in_schedule(OnExit(AppState::Game)));
+            .add_systems(
+                (remove_bullet_cooldown_timer_resource, despawn_all_bullets)
+                    .in_schedule(OnExit(AppState::Game)),
+            );
     }
 }
