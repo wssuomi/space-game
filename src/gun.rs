@@ -124,7 +124,7 @@ pub fn bullet_rock_collision(
             {
                 commands.entity(rock_entity).despawn();
                 commands.entity(bullet_entity).despawn();
-                score.value += 100;
+                score.value += 25;
                 audio.play(audio_handles.rock_collison.clone());
             }
         }
