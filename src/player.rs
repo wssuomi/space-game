@@ -166,7 +166,6 @@ pub fn heal_player(
     if let Ok(mut player) = player_query.get_single_mut() {
         for event in event_reader.iter() {
             player.health += event.healing;
-            println!("player health: {}", player.health);
             if player.health >= 100.0 {
                 player.health = 100.0;
             }
