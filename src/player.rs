@@ -125,6 +125,7 @@ pub fn player_crate_collision(
     mut explosive_event_writer: EventWriter<DamagePlayer>,
     audio: Res<Audio>,
     handles: Res<AudioAssets>,
+    mut score: ResMut<Score>,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
         for (entity, space_crate_transform, space_crate) in crate_query.iter() {
@@ -152,6 +153,7 @@ pub fn player_crate_collision(
                         commands.entity(entity).despawn();
                     }
                 }
+                score.value += 100;
             }
         }
     }
