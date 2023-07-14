@@ -39,9 +39,11 @@ pub fn shoot(
 ) {
     if let Ok(transform) = player_query.get_single() {
         if keyboard_input.pressed(KeyCode::Space) && bullet_cooldown_timer.timer.finished() {
+            let transform =
+                Transform::from_xyz(transform.translation.x, transform.translation.y, -1.0);
             commands.spawn((
                 SpriteBundle {
-                    transform: *transform,
+                    transform,
                     texture: handles.bullet.clone(),
                     ..default()
                 },
