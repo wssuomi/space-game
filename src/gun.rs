@@ -2,7 +2,12 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::{arena::ARENA_HEIGHT, assets::SpriteAssets, player::Player, state::AppState};
+use crate::{
+    arena::ARENA_HEIGHT,
+    assets::{AudioAssets, SpriteAssets},
+    player::Player,
+    state::AppState,
+};
 
 pub const BULLET_SPEED: f32 = 100.0;
 pub const BULLET_HEIGHT: f32 = 30.0;
@@ -33,9 +38,11 @@ impl Default for BulletCooldownTimer {
 pub fn shoot(
     mut commands: Commands,
     keyboard_input: Res<Input<KeyCode>>,
-    handles: Res<SpriteAssets>,
+    sprite_handles: Res<SpriteAssets>,
     player_query: Query<&Transform, With<Player>>,
     mut bullet_cooldown_timer: ResMut<BulletCooldownTimer>,
+    audio: Res<Audio>,
+    audio_handles: Res<AudioAssets>,
 ) {
     if let Ok(transform) = player_query.get_single() {
         if keyboard_input.pressed(KeyCode::Space) && bullet_cooldown_timer.timer.finished() {
@@ -44,11 +51,12 @@ pub fn shoot(
             commands.spawn((
                 SpriteBundle {
                     transform,
-                    texture: handles.bullet.clone(),
+                    texture: sprite_handles.bullet.clone(),
                     ..default()
                 },
                 Bullet {},
             ));
+            audio.play(audio_handles.shoot.clone());
             bullet_cooldown_timer.timer.reset();
         }
     }
