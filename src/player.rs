@@ -110,7 +110,7 @@ pub fn player_rock_collision(
                 event_writer.send(DamagePlayer {
                     damage: rock.damage(),
                 });
-                audio.play(handles.player_rock_collison.clone());
+                audio.play(handles.rock_collison.clone());
                 commands.entity(rock_entity).despawn();
             }
         }

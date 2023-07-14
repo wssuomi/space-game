@@ -1,15 +1,18 @@
 use std::time::Duration;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::collide_aabb::collide};
 
 use crate::{
     arena::ARENA_HEIGHT,
     assets::{AudioAssets, SpriteAssets},
     player::Player,
+    rock::Rock,
+    score::Score,
     state::AppState,
 };
 
 pub const BULLET_SPEED: f32 = 100.0;
+pub const BULLET_WIDTH: f32 = 10.0;
 pub const BULLET_HEIGHT: f32 = 30.0;
 pub const BULLET_COOLDOWN: f32 = 2.0;
 
@@ -101,6 +104,33 @@ pub fn tick_bullet_cooldown_timer(
     bullet_cooldown_timer.timer.tick(time.delta());
 }
 
+pub fn bullet_rock_collision(
+    mut commands: Commands,
+    bullet_query: Query<(Entity, &Transform), With<Bullet>>,
+    rock_query: Query<(Entity, &Transform, &Rock), With<Rock>>,
+    mut score: ResMut<Score>,
+    audio: Res<Audio>,
+    audio_handles: Res<AudioAssets>,
+) {
+    for (bullet_entity, bullet_transform) in bullet_query.iter() {
+        for (rock_entity, rock_transform, rock) in rock_query.iter() {
+            if collide(
+                bullet_transform.translation,
+                Vec2::new(BULLET_WIDTH, BULLET_HEIGHT),
+                rock_transform.translation,
+                Vec2::new(rock.size(), rock.size()),
+            )
+            .is_some()
+            {
+                commands.entity(rock_entity).despawn();
+                commands.entity(bullet_entity).despawn();
+                score.value += 100;
+                audio.play(audio_handles.rock_collison.clone());
+            }
+        }
+    }
+}
+
 pub struct GunPlugin;
 
 impl Plugin for GunPlugin {
@@ -112,6 +142,7 @@ impl Plugin for GunPlugin {
                     move_bullets,
                     despawn_off_screen_bullets,
                     tick_bullet_cooldown_timer,
+                    bullet_rock_collision,
                 )
                     .in_set(OnUpdate(AppState::Game)),
             )
