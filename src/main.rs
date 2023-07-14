@@ -21,7 +21,7 @@ use crate::{
 };
 
 use bevy::{
-    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+    // diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     prelude::*,
     window::PresentMode,
 };
@@ -41,8 +41,8 @@ fn main() {
             }),
             ..default()
         }))
-        .add_plugin(FrameTimeDiagnosticsPlugin::default())
-        .add_plugin(LogDiagnosticsPlugin::default())
+        // .add_plugin(FrameTimeDiagnosticsPlugin::default())
+        // .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(AssetsPlugin)
         .add_plugin(ArenaPlugin)
         .add_plugin(PlayerPlugin)
