@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use rand::random;
+use rand::prelude::*;
 
 use crate::{
     arena::{ARENA_HEIGHT, ARENA_WIDTH},
@@ -12,12 +12,17 @@ pub const CRATE_WIDTH: f32 = 90.0;
 pub const CRATE_HEIGHT: f32 = 54.0;
 pub const CRATE_COOLDOWN: f32 = 10.0;
 pub const CRATE_HEAL: f32 = 20.0;
+pub const CRATE_DAMAGE: f32 = 75.0;
+
+pub enum CrateType {
+    Health,
+    Explosive,
+}
 
 #[derive(Component)]
-pub struct HealthCrate;
-
-#[derive(Component)]
-pub struct SpaceCrate;
+pub struct SpaceCrate {
+    pub crate_type: CrateType,
+}
 
 #[derive(Resource)]
 pub struct CrateSpawnTimer {
@@ -39,14 +44,19 @@ pub fn spawn_crates(
 ) {
     if crate_spawn_timer.timer.finished() {
         let random_x = random::<f32>() * ARENA_WIDTH;
+
+        let mut rng = thread_rng();
+        let (crate_type, crate_sprite) = match rng.gen_range(0..2) {
+            0 => (CrateType::Health, handles.health_crate.clone()),
+            _ => (CrateType::Explosive, handles.explosive_crate.clone()),
+        };
         commands.spawn((
             SpriteBundle {
                 transform: Transform::from_xyz(random_x, CRATE_HEIGHT + ARENA_HEIGHT, 0.0),
-                texture: handles.health_crate.clone(),
+                texture: crate_sprite,
                 ..default()
             },
-            HealthCrate {},
-            SpaceCrate {},
+            SpaceCrate { crate_type },
         ));
         println!("crate spawned");
     }

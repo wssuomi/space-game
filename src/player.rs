@@ -3,7 +3,7 @@ use crate::{
     assets::{AudioAssets, SpriteAssets},
     rock::Rock,
     score::Score,
-    space_crates::{SpaceCrate, CRATE_HEAL, CRATE_HEIGHT, CRATE_WIDTH},
+    space_crates::{SpaceCrate, CRATE_DAMAGE, CRATE_HEAL, CRATE_HEIGHT, CRATE_WIDTH},
     state::AppState,
 };
 
@@ -24,6 +24,10 @@ pub struct PlayerHitRock {
 
 pub struct PlayerCollectedHealthCrate {
     health: f32,
+}
+
+pub struct PlayerHitExplosive {
+    damage: f32,
 }
 
 pub fn spawn_player(mut commands: Commands, handles: Res<SpriteAssets>) {
@@ -120,13 +124,14 @@ pub fn player_rock_collision(
 pub fn player_crate_collision(
     mut commands: Commands,
     player_query: Query<&Transform, With<Player>>,
-    crate_query: Query<(Entity, &Transform), With<SpaceCrate>>,
-    mut event_writer: EventWriter<PlayerCollectedHealthCrate>,
+    crate_query: Query<(Entity, &Transform, &SpaceCrate), With<SpaceCrate>>,
+    mut repair_event_writer: EventWriter<PlayerCollectedHealthCrate>,
+    mut explosive_event_writer: EventWriter<PlayerHitExplosive>,
     audio: Res<Audio>,
     handles: Res<AudioAssets>,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
-        for (entity, space_crate_transform) in crate_query.iter() {
+        for (entity, space_crate_transform, space_crate) in crate_query.iter() {
             if collide(
                 player_transform.translation,
                 Vec2::new(PLAYER_SIZE, PLAYER_SIZE),
@@ -135,9 +140,20 @@ pub fn player_crate_collision(
             )
             .is_some()
             {
-                event_writer.send(PlayerCollectedHealthCrate { health: CRATE_HEAL });
-                audio.play(handles.collect_repair.clone());
-                commands.entity(entity).despawn();
+                match space_crate.crate_type {
+                    crate::space_crates::CrateType::Health => {
+                        repair_event_writer.send(PlayerCollectedHealthCrate { health: CRATE_HEAL });
+                        audio.play(handles.collect_repair.clone());
+                        commands.entity(entity).despawn();
+                    }
+                    crate::space_crates::CrateType::Explosive => {
+                        explosive_event_writer.send(PlayerHitExplosive {
+                            damage: CRATE_DAMAGE,
+                        });
+                        audio.play(handles.hit_explosive.clone());
+                        commands.entity(entity).despawn();
+                    }
+                }
             }
         }
     }
@@ -156,6 +172,24 @@ pub fn health_crate_heal_player(
                 player.health = 100.0;
             }
             println!("Player health: {}", player.health);
+        }
+    }
+}
+
+pub fn explosive_crate_damage_player(
+    mut event_reader: EventReader<PlayerHitExplosive>,
+    mut player_query: Query<&mut Player, With<Player>>,
+    mut next_app_state: ResMut<NextState<AppState>>,
+) {
+    if let Ok(mut player) = player_query.get_single_mut() {
+        for event in event_reader.iter() {
+            player.health -= event.damage;
+            println!("damage: {}", event.damage);
+            println!("player health: {}", player.health);
+            if player.health <= 0.0 {
+                next_app_state.set(AppState::MainMenu);
+                println!("Ship Exploded.");
+            }
         }
     }
 }
@@ -191,6 +225,7 @@ impl Plugin for PlayerPlugin {
         app.add_system(spawn_player.in_schedule(OnEnter(AppState::Game)))
             .add_event::<PlayerHitRock>()
             .add_event::<PlayerCollectedHealthCrate>()
+            .add_event::<PlayerHitExplosive>()
             .add_systems(
                 (
                     player_crate_collision,
@@ -198,6 +233,7 @@ impl Plugin for PlayerPlugin {
                     player_rock_collision,
                     damage_player,
                     health_crate_heal_player,
+                    explosive_crate_damage_player,
                 )
                     .in_set(OnUpdate(AppState::Game)),
             )
