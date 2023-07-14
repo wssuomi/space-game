@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use crate::{assets::SpriteAssets, player::Player};
+use crate::{arena::ARENA_HEIGHT, assets::SpriteAssets, player::Player};
+
+pub const BULLET_SPEED: f32 = 100.0;
+pub const BULLET_HEIGHT: f32 = 30.0;
 
 #[derive(Component)]
 pub struct Bullet;
@@ -25,10 +28,28 @@ pub fn shoot(
     }
 }
 
+pub fn move_bullets(mut bullet_query: Query<&mut Transform, With<Bullet>>, time: Res<Time>) {
+    for mut transform in bullet_query.iter_mut() {
+        transform.translation.y += BULLET_SPEED * time.delta_seconds();
+    }
+}
+
+pub fn despawn_off_screen_bullets(
+    mut commands: Commands,
+    bullet_query: Query<(Entity, &Transform), With<Bullet>>,
+) {
+    for (bullet_entity, bullet_transform) in bullet_query.iter() {
+        if bullet_transform.translation.y > ARENA_HEIGHT + BULLET_HEIGHT {
+            commands.entity(bullet_entity).despawn();
+            println!("bullet despawned");
+        }
+    }
+}
+
 pub struct GunPlugin;
 
 impl Plugin for GunPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(shoot);
+        app.add_systems((shoot, move_bullets, despawn_off_screen_bullets));
     }
 }
