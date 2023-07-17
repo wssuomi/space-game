@@ -7,6 +7,7 @@ mod score;
 mod space_crates;
 mod star;
 mod state;
+mod ui;
 
 use crate::{
     arena::{ArenaPlugin, ARENA_HEIGHT, ARENA_WIDTH},
