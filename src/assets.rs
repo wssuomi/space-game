@@ -20,6 +20,11 @@ pub struct AudioAssets {
     pub shoot: Handle<AudioSource>,
 }
 
+#[derive(Resource)]
+pub struct UiAssets {
+    pub menu_font: Handle<Font>,
+}
+
 pub struct AssetsPlugin;
 
 impl Plugin for AssetsPlugin {
@@ -47,4 +52,8 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         shoot: asset_server.load("audio/shoot.ogg"),
     };
     commands.insert_resource(audio_assets);
+    let ui_assets = UiAssets {
+        menu_font: asset_server.load("fonts/FiraMono-Medium.ttf"),
+    };
+    commands.insert_resource(ui_assets);
 }
