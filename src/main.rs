@@ -19,6 +19,7 @@ use crate::{
     space_crates::CratePlugin,
     star::StarPlugin,
     state::{go_to_main_menu, start_game, AppState},
+    ui::MenuPlugin,
 };
 
 use bevy::{
@@ -52,6 +53,7 @@ fn main() {
         .add_plugin(CratePlugin)
         .add_plugin(ScorePlugin)
         .add_plugin(GunPlugin)
+        .add_plugin(MenuPlugin)
         .add_startup_system(setup)
         .add_system(start_game)
         .add_system(go_to_main_menu)
