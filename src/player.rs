@@ -15,7 +15,7 @@ pub const PLAYER_STARTING_HEALTH: f32 = 100.0;
 
 #[derive(Component)]
 pub struct Player {
-    health: f32,
+    pub health: f32,
 }
 
 pub struct HealPlayer {
@@ -25,6 +25,8 @@ pub struct HealPlayer {
 pub struct DamagePlayer {
     damage: f32,
 }
+
+pub struct UpdatePlayerHealth;
 
 pub fn spawn_player(mut commands: Commands, handles: Res<SpriteAssets>) {
     commands.spawn((
@@ -162,6 +164,7 @@ pub fn player_crate_collision(
 pub fn heal_player(
     mut event_reader: EventReader<HealPlayer>,
     mut player_query: Query<&mut Player, With<Player>>,
+    mut update_health_event_writer: EventWriter<UpdatePlayerHealth>,
 ) {
     if let Ok(mut player) = player_query.get_single_mut() {
         for event in event_reader.iter() {
@@ -170,6 +173,7 @@ pub fn heal_player(
                 player.health = 100.0;
             }
             println!("Player health: {}", player.health);
+            update_health_event_writer.send(UpdatePlayerHealth {});
         }
     }
 }
@@ -177,6 +181,7 @@ pub fn heal_player(
 pub fn damage_player(
     mut event_reader: EventReader<DamagePlayer>,
     mut player_query: Query<&mut Player, With<Player>>,
+    mut update_health_event_writer: EventWriter<UpdatePlayerHealth>,
     mut next_app_state: ResMut<NextState<AppState>>,
 ) {
     if let Ok(mut player) = player_query.get_single_mut() {
@@ -184,6 +189,7 @@ pub fn damage_player(
             player.health -= event.damage;
             println!("damage: {}", event.damage);
             println!("player health: {}", player.health);
+            update_health_event_writer.send(UpdatePlayerHealth {});
             if player.health <= 0.0 {
                 next_app_state.set(AppState::MainMenu);
                 println!("Ship Exploded.");
@@ -205,6 +211,7 @@ impl Plugin for PlayerPlugin {
         app.add_system(spawn_player.in_schedule(OnEnter(AppState::Game)))
             .add_event::<DamagePlayer>()
             .add_event::<HealPlayer>()
+            .add_event::<UpdatePlayerHealth>()
             .add_systems(
                 (
                     player_crate_collision,
