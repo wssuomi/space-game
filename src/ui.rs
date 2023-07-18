@@ -1,9 +1,15 @@
 use bevy::prelude::*;
 
-use crate::{assets::UiAssets, state::AppState};
+use crate::{assets::UiAssets, score::Score, state::AppState};
 
 #[derive(Component)]
 struct StartMenu;
+
+#[derive(Component)]
+struct HUD;
+
+#[derive(Component)]
+struct ScoreText;
 
 fn spawn_start_menu(mut commands: Commands, ui_assets: Res<UiAssets>) {
     commands
@@ -56,11 +62,80 @@ fn despawn_start_menu(mut commands: Commands, start_menu_query: Query<Entity, Wi
     }
 }
 
+fn hud(mut commands: Commands, ui_assets: Res<UiAssets>) {
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    flex_direction: FlexDirection::Column,
+                    align_self: AlignSelf::Center,
+
+                    ..default()
+                },
+                ..default()
+            },
+            HUD {},
+        ))
+        .with_children(|parent| {
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        size: Size::new(Val::Px(900.0), Val::Px(900.0)),
+                        ..default()
+                    },
+                    ..default()
+                })
+                .with_children(|parent| {
+                    parent.spawn((
+                        TextBundle {
+                            style: Style {
+                                size: Size {
+                                    width: Val::Px(450.0),
+                                    ..default()
+                                },
+                                ..default()
+                            },
+                            text: Text::from_section(
+                                "Score:",
+                                TextStyle {
+                                    font: ui_assets.menu_font.clone(),
+                                    font_size: 50.0,
+                                    color: Color::rgb_u8(0x00, 0xAA, 0xAA),
+                                },
+                            ),
+                            ..default()
+                        },
+                        ScoreText {},
+                    ));
+                });
+        });
+}
+
+fn despawn_hud(mut commands: Commands, hud_query: Query<Entity, With<HUD>>) {
+    if let Ok(hud) = hud_query.get_single() {
+        commands.entity(hud).despawn_recursive();
+    }
+}
+
+fn update_score_text(mut text_query: Query<&mut Text, With<ScoreText>>, score: Res<Score>) {
+    if score.is_changed() {
+        for mut text in text_query.iter_mut() {
+            text.sections[0].value = format!("Score: {}", score.value.to_string());
+        }
+    }
+}
+
 pub struct MenuPlugin;
 
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(spawn_start_menu.in_schedule(OnEnter(AppState::MainMenu)))
-            .add_system(despawn_start_menu.in_schedule(OnExit(AppState::MainMenu)));
+            .add_system(hud.in_schedule(OnEnter(AppState::Game)))
+            .add_system(despawn_start_menu.in_schedule(OnExit(AppState::MainMenu)))
+            .add_system(update_score_text.in_set(OnUpdate(AppState::Game)))
+            .add_system(despawn_hud.in_schedule(OnExit(AppState::Game)));
     }
 }
