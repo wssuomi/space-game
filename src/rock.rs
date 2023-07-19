@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use crate::{
     arena::{ARENA_HEIGHT, ARENA_WIDTH},
     assets::SpriteAssets,
@@ -7,7 +9,11 @@ use crate::{
 use bevy::prelude::*;
 use rand::prelude::*;
 
-pub const ROCK_COOLDOWN: f32 = 2.0;
+pub const STARTING_ROCK_COOLDOWN: f32 = 2.0;
+pub const EASY_ROCK_COOLDOWN: f32 = 1.0;
+pub const NORMAL_ROCK_COOLDOWN: f32 = 0.5;
+pub const HARD_ROCK_COOLDOWN: f32 = 0.3;
+pub const VERY_HARD_ROCK_COOLDOWN: f32 = 0.2;
 pub const FAST_ROCK_SPEED: f32 = 100.0;
 pub const NORMAL_ROCK_SPEED: f32 = 75.0;
 pub const SLOW_ROCK_SPEED: f32 = 50.0;
@@ -23,8 +29,19 @@ pub struct RockSpawnTimer {
 impl Default for RockSpawnTimer {
     fn default() -> Self {
         RockSpawnTimer {
-            timer: Timer::from_seconds(ROCK_COOLDOWN, TimerMode::Repeating),
+            timer: Timer::from_seconds(STARTING_ROCK_COOLDOWN, TimerMode::Repeating),
         }
+    }
+}
+
+#[derive(Resource)]
+pub struct RocksDestroyed {
+    pub count: u32,
+}
+
+impl Default for RocksDestroyed {
+    fn default() -> Self {
+        RocksDestroyed { count: 0 }
     }
 }
 
@@ -79,6 +96,40 @@ impl Rock {
     }
 }
 
+fn set_difficulty(
+    rocks_destroyed: Res<RocksDestroyed>,
+    mut rock_spawn_timer: ResMut<RockSpawnTimer>,
+) {
+    if rocks_destroyed.is_changed() {
+        if rocks_destroyed.count > 10 && rocks_destroyed.count <= 25 {
+            rock_spawn_timer
+                .timer
+                .set_duration(Duration::from_secs_f32(EASY_ROCK_COOLDOWN));
+        }
+        if rocks_destroyed.count > 25 && rocks_destroyed.count <= 75 {
+            rock_spawn_timer
+                .timer
+                .set_duration(Duration::from_secs_f32(NORMAL_ROCK_COOLDOWN));
+        }
+        if rocks_destroyed.count > 75 && rocks_destroyed.count <= 200 {
+            rock_spawn_timer
+                .timer
+                .set_duration(Duration::from_secs_f32(HARD_ROCK_COOLDOWN));
+        }
+        if rocks_destroyed.count > 200 && rocks_destroyed.count <= 500 {
+            rock_spawn_timer
+                .timer
+                .set_duration(Duration::from_secs_f32(VERY_HARD_ROCK_COOLDOWN));
+        }
+    }
+}
+
+fn print_rocks_destroyed(rocks_destroyed: Res<RocksDestroyed>) {
+    if rocks_destroyed.is_changed() {
+        println!("rock destroyed: {}", rocks_destroyed.count);
+    }
+}
+
 pub fn spawn_rocks_over_time(
     mut commands: Commands,
     handles: Res<SpriteAssets>,
@@ -128,10 +179,12 @@ pub fn move_rocks(mut rock_query: Query<(&mut Transform, &Rock)>, time: Res<Time
 pub fn remove_off_screen_rocks(
     mut commands: Commands,
     rock_query: Query<(Entity, &Transform, &Rock), With<Rock>>,
+    mut rocks_destroyed: ResMut<RocksDestroyed>,
 ) {
     for (rock_entity, rock_transform, rock) in rock_query.iter() {
         if rock_transform.translation.y < 0.0 - rock.size() {
             commands.entity(rock_entity).despawn();
+            rocks_destroyed.count += 1;
         }
     }
 }
@@ -146,20 +199,32 @@ pub fn despawn_rocks(mut commands: Commands, rock_query: Query<Entity, With<Rock
     }
 }
 
+pub fn add_rocks_destroyed_resource(mut commands: Commands) {
+    commands.insert_resource(RocksDestroyed::default())
+}
+
+pub fn remove_rocks_destoyrd_resource(mut commands: Commands) {
+    commands.remove_resource::<RocksDestroyed>();
+}
+
 pub struct RockPlugin;
 
 impl Plugin for RockPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<RockSpawnTimer>()
+            .add_system(add_rocks_destroyed_resource.in_schedule(OnEnter(AppState::Game)))
             .add_systems(
                 (
                     spawn_rocks_over_time,
                     tick_rock_spawn_timer,
                     move_rocks,
                     remove_off_screen_rocks,
+                    print_rocks_destroyed,
+                    set_difficulty,
                 )
                     .in_set(OnUpdate(AppState::Game)),
             )
-            .add_system(despawn_rocks.in_schedule(OnExit(AppState::Game)));
+            .add_system(despawn_rocks.in_schedule(OnExit(AppState::Game)))
+            .add_system(remove_rocks_destoyrd_resource.in_schedule(OnExit(AppState::Game)));
     }
 }

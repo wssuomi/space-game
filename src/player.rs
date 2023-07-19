@@ -1,7 +1,7 @@
 use crate::{
     arena::{ARENA_HEIGHT, ARENA_WIDTH},
     assets::{AudioAssets, SpriteAssets},
-    rock::Rock,
+    rock::{Rock, RocksDestroyed},
     score::Score,
     space_crates::{SpaceCrate, CRATE_DAMAGE, CRATE_HEAL, CRATE_HEIGHT, CRATE_WIDTH},
     state::AppState,
@@ -107,6 +107,7 @@ pub fn player_rock_collision(
     mut score: ResMut<Score>,
     audio: Res<Audio>,
     handles: Res<AudioAssets>,
+    mut rocks_destroyed: ResMut<RocksDestroyed>,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
         for (rock_entity, rock_transform, rock) in rock_query.iter() {
@@ -121,6 +122,7 @@ pub fn player_rock_collision(
                 });
                 audio.play(handles.rock_collison.clone());
                 commands.entity(rock_entity).despawn();
+                rocks_destroyed.count += 1;
             }
         }
     }

@@ -6,7 +6,7 @@ use crate::{
     arena::ARENA_HEIGHT,
     assets::{AudioAssets, SpriteAssets},
     player::Player,
-    rock::Rock,
+    rock::{Rock, RocksDestroyed},
     score::Score,
     state::AppState,
     ASSET_SCALE,
@@ -117,6 +117,7 @@ pub fn bullet_rock_collision(
     mut score: ResMut<Score>,
     audio: Res<Audio>,
     audio_handles: Res<AudioAssets>,
+    mut rocks_destroyed: ResMut<RocksDestroyed>,
 ) {
     for (bullet_entity, bullet_transform) in bullet_query.iter() {
         for (rock_entity, rock_transform, rock) in rock_query.iter() {
@@ -132,6 +133,7 @@ pub fn bullet_rock_collision(
                 commands.entity(bullet_entity).despawn();
                 score.value += 25;
                 audio.play(audio_handles.rock_collison.clone());
+                rocks_destroyed.count += 1;
             }
         }
     }

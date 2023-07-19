@@ -31,7 +31,6 @@ pub fn spawn_stars(mut commands: Commands, asset_server: Res<AssetServer>) {
                     },
                     ..default()
                 },
-                // transform: Transform::from_xyz(random_x, random_y, -1.0),
                 texture: asset_server.load("sprites/star.png"),
                 ..default()
             },
