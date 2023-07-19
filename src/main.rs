@@ -60,9 +60,14 @@ fn main() {
         .run();
 }
 
-pub fn setup(mut commands: Commands) {
+pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn(Camera2dBundle {
         transform: Transform::from_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, 5.0),
+        ..default()
+    });
+    commands.spawn(SpriteBundle {
+        transform: Transform::from_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, -3.0),
+        texture: asset_server.load("sprites/background.png"),
         ..default()
     });
 }
