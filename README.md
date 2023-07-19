@@ -3,6 +3,5 @@
 Fly in space while avoiding and shooting rocks.
 
 ### ToDo
-- add main menu
-- add game over screen
-- add hud
+- make new assets
+- switch to new assets
