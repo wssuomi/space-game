@@ -131,6 +131,7 @@ pub fn spawn_rocks_over_time(
 ) {
     if rock_spawn_timer.timer.finished() {
         let random_x = random::<f32>() * ARENA_WIDTH;
+        let random_z = random::<f32>() * -1.0;
 
         let mut rng = thread_rng();
         let (rock_size, rock_sprite) = match rng.gen_range(0..3) {
@@ -147,7 +148,7 @@ pub fn spawn_rocks_over_time(
 
         commands.spawn((
             SpriteBundle {
-                transform: Transform::from_xyz(random_x, BIG_ROCK_SIZE + ARENA_HEIGHT, 0.0)
+                transform: Transform::from_xyz(random_x, BIG_ROCK_SIZE + ARENA_HEIGHT, random_z)
                     .with_scale(Vec3 {
                         x: ASSET_SCALE,
                         y: ASSET_SCALE,
