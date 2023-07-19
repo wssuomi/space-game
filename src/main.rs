@@ -29,6 +29,7 @@ use bevy::{
 };
 
 pub const CLEAR_COLOR: Color = Color::rgb(0.0, 0.0, 0.2);
+pub const ASSET_SCALE: f32 = 4.0;
 
 fn main() {
     App::new()

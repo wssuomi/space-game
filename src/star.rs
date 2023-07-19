@@ -1,4 +1,7 @@
-use crate::arena::{ARENA_HEIGHT, ARENA_WIDTH};
+use crate::{
+    arena::{ARENA_HEIGHT, ARENA_WIDTH},
+    ASSET_SCALE,
+};
 use bevy::prelude::*;
 use rand::prelude::*;
 
@@ -15,7 +18,20 @@ pub fn spawn_stars(mut commands: Commands, asset_server: Res<AssetServer>) {
 
         commands.spawn((
             SpriteBundle {
-                transform: Transform::from_xyz(random_x, random_y, -1.0),
+                transform: Transform {
+                    translation: Vec3 {
+                        x: random_x,
+                        y: random_y,
+                        z: -1.0,
+                    },
+                    scale: Vec3 {
+                        x: ASSET_SCALE,
+                        y: ASSET_SCALE,
+                        ..default()
+                    },
+                    ..default()
+                },
+                // transform: Transform::from_xyz(random_x, random_y, -1.0),
                 texture: asset_server.load("sprites/star.png"),
                 ..default()
             },

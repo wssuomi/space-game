@@ -2,6 +2,7 @@ use crate::{
     arena::{ARENA_HEIGHT, ARENA_WIDTH},
     assets::SpriteAssets,
     state::AppState,
+    ASSET_SCALE,
 };
 use bevy::prelude::*;
 use rand::prelude::*;
@@ -10,9 +11,9 @@ pub const ROCK_COOLDOWN: f32 = 2.0;
 pub const FAST_ROCK_SPEED: f32 = 100.0;
 pub const NORMAL_ROCK_SPEED: f32 = 75.0;
 pub const SLOW_ROCK_SPEED: f32 = 50.0;
-pub const BIG_ROCK_SIZE: f32 = 150.0;
-pub const NORMAL_ROCK_SIZE: f32 = 100.0;
-pub const SMALL_ROCK_SIZE: f32 = 70.0;
+pub const BIG_ROCK_SIZE: f32 = 24.0 * ASSET_SCALE;
+pub const NORMAL_ROCK_SIZE: f32 = 16.0 * ASSET_SCALE;
+pub const SMALL_ROCK_SIZE: f32 = 8.0 * ASSET_SCALE;
 
 #[derive(Resource)]
 pub struct RockSpawnTimer {
@@ -101,7 +102,12 @@ pub fn spawn_rocks_over_time(
 
         commands.spawn((
             SpriteBundle {
-                transform: Transform::from_xyz(random_x, BIG_ROCK_SIZE + ARENA_HEIGHT, 0.0),
+                transform: Transform::from_xyz(random_x, BIG_ROCK_SIZE + ARENA_HEIGHT, 0.0)
+                    .with_scale(Vec3 {
+                        x: ASSET_SCALE,
+                        y: ASSET_SCALE,
+                        ..default()
+                    }),
                 texture: rock_sprite,
                 ..default()
             },

@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, render::texture::ImageSampler};
 
 #[derive(Debug, Resource)]
 pub struct SpriteAssets {
@@ -26,23 +26,39 @@ pub struct UiAssets {
     pub menu_font: Handle<Font>,
 }
 
+fn fix_blurry_textures(
+    mut ev_asset: EventReader<AssetEvent<Image>>,
+    mut assets: ResMut<Assets<Image>>,
+) {
+    for ev in ev_asset.iter() {
+        match ev {
+            AssetEvent::Created { handle } => {
+                let texture = assets.get_mut(&handle).unwrap();
+                texture.sampler_descriptor = ImageSampler::nearest();
+            }
+            _ => {}
+        }
+    }
+}
+
 pub struct AssetsPlugin;
 
 impl Plugin for AssetsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup);
+        app.add_startup_system(setup)
+            .add_system(fix_blurry_textures);
     }
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let sprite_assets = SpriteAssets {
-        player: asset_server.load("sprites/player.png"),
+        player: asset_server.load("sprites/ship.png"),
         big_rock: asset_server.load("sprites/big_rock.png"),
         normal_rock: asset_server.load("sprites/normal_rock.png"),
         small_rock: asset_server.load("sprites/small_rock.png"),
         star: asset_server.load("sprites/star.png"),
-        health_crate: asset_server.load("sprites/health_box.png"),
-        explosive_crate: asset_server.load("sprites/explosive_box.png"),
+        health_crate: asset_server.load("sprites/repair_crate.png"),
+        explosive_crate: asset_server.load("sprites/explosive_crate.png"),
         bullet: asset_server.load("sprites/bullet.png"),
         background: asset_server.load("sprites/background.png"),
     };

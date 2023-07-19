@@ -5,11 +5,12 @@ use crate::{
     arena::{ARENA_HEIGHT, ARENA_WIDTH},
     assets::SpriteAssets,
     state::AppState,
+    ASSET_SCALE,
 };
 
 pub const CRATE_SPEED: f32 = 100.0;
-pub const CRATE_WIDTH: f32 = 90.0;
-pub const CRATE_HEIGHT: f32 = 54.0;
+pub const CRATE_WIDTH: f32 = 16.0 * ASSET_SCALE;
+pub const CRATE_HEIGHT: f32 = 16.0 * ASSET_SCALE;
 pub const CRATE_COOLDOWN: f32 = 10.0;
 pub const CRATE_HEAL: f32 = 20.0;
 pub const CRATE_DAMAGE: f32 = 75.0;
@@ -52,7 +53,12 @@ pub fn spawn_crates(
         };
         commands.spawn((
             SpriteBundle {
-                transform: Transform::from_xyz(random_x, CRATE_HEIGHT + ARENA_HEIGHT, 0.0),
+                transform: Transform::from_xyz(random_x, CRATE_HEIGHT + ARENA_HEIGHT, 0.0)
+                    .with_scale(Vec3 {
+                        x: ASSET_SCALE,
+                        y: ASSET_SCALE,
+                        ..default()
+                    }),
                 texture: crate_sprite,
                 ..default()
             },

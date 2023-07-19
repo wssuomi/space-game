@@ -9,11 +9,12 @@ use crate::{
     rock::Rock,
     score::Score,
     state::AppState,
+    ASSET_SCALE,
 };
 
 pub const BULLET_SPEED: f32 = 600.0;
-pub const BULLET_WIDTH: f32 = 10.0;
-pub const BULLET_HEIGHT: f32 = 30.0;
+pub const BULLET_WIDTH: f32 = ASSET_SCALE;
+pub const BULLET_HEIGHT: f32 = 4.0 * ASSET_SCALE;
 pub const BULLET_COOLDOWN: f32 = 1.0;
 
 #[derive(Component)]
@@ -50,7 +51,12 @@ pub fn shoot(
     if let Ok(transform) = player_query.get_single() {
         if keyboard_input.pressed(KeyCode::Space) && bullet_cooldown_timer.timer.finished() {
             let transform =
-                Transform::from_xyz(transform.translation.x, transform.translation.y, -1.0);
+                Transform::from_xyz(transform.translation.x, transform.translation.y, -1.0)
+                    .with_scale(Vec3 {
+                        x: ASSET_SCALE,
+                        y: ASSET_SCALE,
+                        ..default()
+                    });
             commands.spawn((
                 SpriteBundle {
                     transform,

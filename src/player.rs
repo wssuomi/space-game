@@ -5,12 +5,13 @@ use crate::{
     score::Score,
     space_crates::{SpaceCrate, CRATE_DAMAGE, CRATE_HEAL, CRATE_HEIGHT, CRATE_WIDTH},
     state::AppState,
+    ASSET_SCALE,
 };
 
 use bevy::{prelude::*, sprite::collide_aabb::collide};
 
 pub const PLAYER_SPEED: f32 = 480.0;
-pub const PLAYER_SIZE: f32 = 100.0;
+pub const PLAYER_SIZE: f32 = 16.0 * ASSET_SCALE;
 pub const PLAYER_STARTING_HEALTH: f32 = 100.0;
 
 #[derive(Component)]
@@ -31,7 +32,13 @@ pub struct UpdatePlayerHealth;
 pub fn spawn_player(mut commands: Commands, handles: Res<SpriteAssets>) {
     commands.spawn((
         SpriteBundle {
-            transform: Transform::from_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, 0.0),
+            transform: Transform::from_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, 0.0).with_scale(
+                Vec3 {
+                    x: ASSET_SCALE,
+                    y: ASSET_SCALE,
+                    ..default()
+                },
+            ),
             texture: handles.player.clone(),
             ..default()
         },
