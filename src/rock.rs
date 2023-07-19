@@ -124,12 +124,6 @@ fn set_difficulty(
     }
 }
 
-fn print_rocks_destroyed(rocks_destroyed: Res<RocksDestroyed>) {
-    if rocks_destroyed.is_changed() {
-        println!("rock destroyed: {}", rocks_destroyed.count);
-    }
-}
-
 pub fn spawn_rocks_over_time(
     mut commands: Commands,
     handles: Res<SpriteAssets>,
@@ -219,7 +213,6 @@ impl Plugin for RockPlugin {
                     tick_rock_spawn_timer,
                     move_rocks,
                     remove_off_screen_rocks,
-                    print_rocks_destroyed,
                     set_difficulty,
                 )
                     .in_set(OnUpdate(AppState::Game)),
