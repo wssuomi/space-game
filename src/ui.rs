@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     assets::UiAssets,
     player::{Player, UpdatePlayerHealth},
-    score::Score,
+    score::{Highscore, Score},
     state::AppState,
 };
 
@@ -19,7 +19,7 @@ struct ScoreText;
 #[derive(Component)]
 struct HealthText;
 
-fn spawn_start_menu(mut commands: Commands, ui_assets: Res<UiAssets>) {
+fn spawn_start_menu(mut commands: Commands, ui_assets: Res<UiAssets>, highscore: Res<Highscore>) {
     commands
         .spawn((
             NodeBundle {
@@ -53,6 +53,20 @@ fn spawn_start_menu(mut commands: Commands, ui_assets: Res<UiAssets>) {
                 style: Style { ..default() },
                 text: Text::from_section(
                     "Press Enter",
+                    TextStyle {
+                        font: ui_assets.menu_font.clone(),
+                        font_size: 50.0,
+                        color: Color::rgb(1.0, 1.0, 1.0),
+                    },
+                ),
+                ..default()
+            });
+        })
+        .with_children(|parent| {
+            parent.spawn(TextBundle {
+                style: Style { ..default() },
+                text: Text::from_section(
+                    format!("Highscore: {}", highscore.value),
                     TextStyle {
                         font: ui_assets.menu_font.clone(),
                         font_size: 50.0,
@@ -106,7 +120,7 @@ fn hud(mut commands: Commands, ui_assets: Res<UiAssets>) {
                                 ..default()
                             },
                             text: Text::from_section(
-                                "Score:",
+                                "Score: 0",
                                 TextStyle {
                                     font: ui_assets.menu_font.clone(),
                                     font_size: 50.0,
