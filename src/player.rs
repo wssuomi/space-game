@@ -1,6 +1,7 @@
 use crate::{
     arena::{ARENA_HEIGHT, ARENA_WIDTH},
     assets::{AudioAssets, SpriteAssets},
+    explosion::SpawnExplosion,
     rock::{Rock, RocksDestroyed},
     score::Score,
     space_crates::{SpaceCrate, CRATE_DAMAGE, CRATE_HEAL, CRATE_HEIGHT, CRATE_WIDTH},
@@ -104,6 +105,7 @@ pub fn player_rock_collision(
     player_query: Query<&Transform, With<Player>>,
     rock_query: Query<(Entity, &Transform, &Rock), With<Rock>>,
     mut event_writer: EventWriter<DamagePlayer>,
+    mut explosion_event_writer: EventWriter<SpawnExplosion>,
     mut score: ResMut<Score>,
     audio: Res<Audio>,
     handles: Res<AudioAssets>,
@@ -119,6 +121,13 @@ pub fn player_rock_collision(
                 println!("Score: {}", score.value);
                 event_writer.send(DamagePlayer {
                     damage: rock.damage(),
+                });
+                explosion_event_writer.send(SpawnExplosion {
+                    pos: Vec3::new(
+                        rock_transform.translation.x,
+                        rock_transform.translation.y,
+                        2.0,
+                    ),
                 });
                 audio.play(handles.rock_collison.clone());
                 commands.entity(rock_entity).despawn();

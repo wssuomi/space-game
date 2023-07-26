@@ -5,6 +5,7 @@ use bevy::{prelude::*, sprite::collide_aabb::collide};
 use crate::{
     arena::ARENA_HEIGHT,
     assets::{AudioAssets, SpriteAssets},
+    explosion::SpawnExplosion,
     player::Player,
     rock::{Rock, RocksDestroyed},
     score::Score,
@@ -118,6 +119,7 @@ pub fn bullet_rock_collision(
     audio: Res<Audio>,
     audio_handles: Res<AudioAssets>,
     mut rocks_destroyed: ResMut<RocksDestroyed>,
+    mut explosion_event_writer: EventWriter<SpawnExplosion>,
 ) {
     for (bullet_entity, bullet_transform) in bullet_query.iter() {
         for (rock_entity, rock_transform, rock) in rock_query.iter() {
@@ -132,6 +134,9 @@ pub fn bullet_rock_collision(
                 commands.entity(rock_entity).despawn();
                 commands.entity(bullet_entity).despawn();
                 score.value += 25;
+                explosion_event_writer.send(SpawnExplosion {
+                    pos: rock_transform.translation,
+                });
                 audio.play(audio_handles.rock_collison.clone());
                 rocks_destroyed.count += 1;
             }

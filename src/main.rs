@@ -1,5 +1,6 @@
 mod arena;
 mod assets;
+mod explosion;
 mod gun;
 mod player;
 mod rock;
@@ -12,6 +13,7 @@ mod ui;
 use crate::{
     arena::{ArenaPlugin, ARENA_HEIGHT, ARENA_WIDTH},
     assets::AssetsPlugin,
+    explosion::ExplosionPlugin,
     gun::GunPlugin,
     player::PlayerPlugin,
     rock::RockPlugin,
@@ -54,6 +56,7 @@ fn main() {
         .add_plugin(CratePlugin)
         .add_plugin(ScorePlugin)
         .add_plugin(GunPlugin)
+        .add_plugin(ExplosionPlugin)
         .add_plugin(MenuPlugin)
         .add_startup_system(setup)
         .add_system(start_game)
