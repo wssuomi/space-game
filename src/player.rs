@@ -146,6 +146,7 @@ pub fn player_crate_collision(
     audio: Res<Audio>,
     handles: Res<AudioAssets>,
     mut score: ResMut<Score>,
+    mut explosion_event_writer: EventWriter<SpawnExplosion>,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
         for (entity, space_crate_transform, space_crate) in crate_query.iter() {
@@ -171,6 +172,13 @@ pub fn player_crate_collision(
                         });
                         audio.play(handles.hit_explosive.clone());
                         commands.entity(entity).despawn();
+                        explosion_event_writer.send(SpawnExplosion {
+                            pos: Vec3::new(
+                                space_crate_transform.translation.x,
+                                space_crate_transform.translation.y,
+                                2.0,
+                            ),
+                        });
                     }
                 }
                 score.value += 100;
