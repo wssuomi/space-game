@@ -25,7 +25,6 @@ use crate::{
 };
 
 use bevy::{
-    // diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     prelude::*,
     window::PresentMode,
 };
@@ -39,15 +38,13 @@ fn main() {
         .insert_resource(ClearColor(CLEAR_COLOR))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
-                title: "Space game".into(),
+                title: "SG029".into(),
                 resolution: (ARENA_WIDTH, ARENA_HEIGHT).into(),
                 present_mode: PresentMode::AutoNoVsync,
                 ..default()
             }),
             ..default()
         }))
-        // .add_plugin(FrameTimeDiagnosticsPlugin::default())
-        // .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(AssetsPlugin)
         .add_plugin(ArenaPlugin)
         .add_plugin(PlayerPlugin)

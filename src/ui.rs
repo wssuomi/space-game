@@ -38,11 +38,11 @@ fn spawn_start_menu(mut commands: Commands, ui_assets: Res<UiAssets>, highscore:
             parent.spawn(TextBundle {
                 style: Style { ..default() },
                 text: Text::from_section(
-                    "Space Game",
+                    "SG029",
                     TextStyle {
                         font: ui_assets.menu_font.clone(),
-                        font_size: 100.0,
-                        color: Color::rgb_u8(0x00, 0xAA, 0xAA),
+                        font_size: 150.0,
+                        color: Color::rgb(0.9, 0.9, 1.0),
                     },
                 ),
                 ..default()
@@ -56,7 +56,7 @@ fn spawn_start_menu(mut commands: Commands, ui_assets: Res<UiAssets>, highscore:
                     TextStyle {
                         font: ui_assets.menu_font.clone(),
                         font_size: 50.0,
-                        color: Color::rgb(1.0, 1.0, 1.0),
+                        color: Color::rgb(0.8, 0.8, 0.8),
                     },
                 ),
                 ..default()
@@ -70,7 +70,7 @@ fn spawn_start_menu(mut commands: Commands, ui_assets: Res<UiAssets>, highscore:
                     TextStyle {
                         font: ui_assets.menu_font.clone(),
                         font_size: 50.0,
-                        color: Color::rgb(1.0, 1.0, 1.0),
+                        color: Color::rgb(0.8, 0.8, 0.8),
                     },
                 ),
                 ..default()
@@ -117,6 +117,10 @@ fn hud(mut commands: Commands, ui_assets: Res<UiAssets>) {
                                     height: Val::Percent(5.0),
                                     ..default()
                                 },
+                                margin: UiRect {
+                                    left: Val::Percent(2.),
+                                    ..default()
+                                },
                                 ..default()
                             },
                             text: Text::from_section(
@@ -124,7 +128,7 @@ fn hud(mut commands: Commands, ui_assets: Res<UiAssets>) {
                                 TextStyle {
                                     font: ui_assets.menu_font.clone(),
                                     font_size: 50.0,
-                                    color: Color::rgb_u8(0x00, 0xAA, 0xAA),
+                                    color: Color::rgb(0.8, 0.8, 0.8),
                                 },
                             ),
                             ..default()
@@ -139,6 +143,10 @@ fn hud(mut commands: Commands, ui_assets: Res<UiAssets>) {
                                     height: Val::Percent(5.0),
                                     ..default()
                                 },
+                                margin: UiRect {
+                                    right: Val::Percent(2.),
+                                    ..default()
+                                },
                                 ..default()
                             },
                             text: Text {
@@ -147,7 +155,7 @@ fn hud(mut commands: Commands, ui_assets: Res<UiAssets>) {
                                     TextStyle {
                                         font: ui_assets.menu_font.clone(),
                                         font_size: 50.0,
-                                        color: Color::rgb_u8(0x00, 0xAA, 0xAA),
+                                        color: Color::rgb(0.8, 0.8, 0.8),
                                     },
                                 )],
                                 alignment: TextAlignment::Center,

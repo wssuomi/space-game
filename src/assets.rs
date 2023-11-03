@@ -73,7 +73,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     };
     commands.insert_resource(audio_assets);
     let ui_assets = UiAssets {
-        menu_font: asset_server.load("fonts/FiraMono-Medium.ttf"),
+        menu_font: asset_server.load("fonts/m5x7.ttf"),
     };
     commands.insert_resource(ui_assets);
 }
