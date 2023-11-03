@@ -1,4 +1,4 @@
-# Space game
+# SG029
 
-Fly in space while avoiding and shooting rocks.
+SG029 is a game where you fly in space and blast asteroids
 
