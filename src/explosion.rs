@@ -39,7 +39,6 @@ fn spawn_explosion_on_event(
             },
             Explosion::default(),
         ));
-        println!("explosion");
     }
 }
 

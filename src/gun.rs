@@ -85,7 +85,6 @@ pub fn despawn_off_screen_bullets(
     for (bullet_entity, bullet_transform) in bullet_query.iter() {
         if bullet_transform.translation.y > ARENA_HEIGHT + BULLET_HEIGHT {
             commands.entity(bullet_entity).despawn();
-            println!("bullet despawned");
         }
     }
 }

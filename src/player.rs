@@ -47,7 +47,6 @@ pub fn spawn_player(mut commands: Commands, handles: Res<SpriteAssets>) {
             health: PLAYER_STARTING_HEALTH,
         },
     ));
-    println!("player spawned");
 }
 
 pub fn player_movement(
@@ -118,7 +117,6 @@ pub fn player_rock_collision(
                 .distance(rock_transform.translation);
             if distance < PLAYER_SIZE / 2.0 + rock.size() / 2.0 {
                 score.value += 25;
-                println!("Score: {}", score.value);
                 event_writer.send(DamagePlayer {
                     damage: rock.damage(),
                 });
@@ -198,7 +196,6 @@ pub fn heal_player(
             if player.health >= 100.0 {
                 player.health = 100.0;
             }
-            println!("Player health: {}", player.health);
             update_health_event_writer.send(UpdatePlayerHealth {});
         }
     }
@@ -213,12 +210,9 @@ pub fn damage_player(
     if let Ok(mut player) = player_query.get_single_mut() {
         for event in event_reader.iter() {
             player.health -= event.damage;
-            println!("damage: {}", event.damage);
-            println!("player health: {}", player.health);
             update_health_event_writer.send(UpdatePlayerHealth {});
             if player.health <= 0.0 {
                 next_app_state.set(AppState::MainMenu);
-                println!("Ship Exploded.");
             }
         }
     }

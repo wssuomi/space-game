@@ -42,7 +42,6 @@ impl Default for ScoreTimer {
 pub fn add_score_over_time(mut score: ResMut<Score>, score_timer: Res<ScoreTimer>) {
     if score_timer.timer.finished() {
         score.value += 5;
-        println!("Score: {}", score.value);
     }
 }
 
@@ -72,10 +71,6 @@ pub fn update_highscore(score: Res<Score>, mut highscore: ResMut<Highscore>) {
     }
 }
 
-pub fn print_highscore(highscore: Res<Highscore>) {
-    println!("Highscore: {}", highscore.value);
-}
-
 pub struct ScorePlugin;
 
 impl Plugin for ScorePlugin {
@@ -90,7 +85,6 @@ impl Plugin for ScorePlugin {
                     remove_score_resource,
                     remove_score_timer_resource,
                     update_highscore,
-                    print_highscore.after(update_highscore),
                 )
                     .in_schedule(OnExit(AppState::Game)),
             );

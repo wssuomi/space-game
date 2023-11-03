@@ -64,7 +64,6 @@ pub fn spawn_crates(
             },
             SpaceCrate { crate_type },
         ));
-        println!("crate spawned");
     }
 }
 
@@ -85,7 +84,6 @@ pub fn remove_off_screen_crates(
     for (entity, transform) in crate_query.iter() {
         if transform.translation.y < 0.0 - CRATE_HEIGHT {
             commands.entity(entity).despawn();
-            println!("crate despawned");
         }
     }
 }
